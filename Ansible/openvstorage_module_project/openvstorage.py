@@ -323,7 +323,7 @@ def deploy_ovs(module, is_master):
 			sys.path.append('/opt/OpenvStorage')
 			from ovs.lib.setup import SetupController
 			
-			if is_master == True:
+			if is_master == True or is_master == "True" or is_master == "true":
 				with _stdout_redirect(StringIO.StringIO()) as log_stdout:
 					SetupController.setup_node(force_type='master')
 			else:
