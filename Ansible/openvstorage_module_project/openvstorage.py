@@ -304,8 +304,8 @@ def create_preconfig(module, node_information):
         	target.write('hypervisor_password = %s\n' % node_information['hypervisor_password'])
         	target.write('auto_config = True\n')
         	target.write('verbose = True\n')
-        	target.write('configure_memcached = %s\n' % node_information['ovs_master'])
-        	target.write('configure_rabbitmq = %s\n' % node_information['ovs_master'])
+        	target.write('configure_memcached = True\n')
+        	target.write('configure_rabbitmq = True\n')
 		target.write('enable_heartbeats = True')
 		target.close()
 	except Exception, e:
@@ -313,22 +313,26 @@ def create_preconfig(module, node_information):
 
 	return os.path.isfile('/tmp/openvstorage_preconfig.cfg')
 
-def deploy_ovs(module):
+def deploy_ovs(module, is_master):
         """
-        DESCRIPTION: Deploy OVS on node
+        DESCRIPTION: Deploy OVS on node in master or extra mode
         """
 
 	if os.path.isfile('/tmp/openvstorage_preconfig.cfg'):
 		if os.path.isdir('/opt/OpenvStorage'):
 			sys.path.append('/opt/OpenvStorage')
 			from ovs.lib.setup import SetupController
+			
+			if is_master == True:
+				with _stdout_redirect(StringIO.StringIO()) as log_stdout:
+					SetupController.setup_node(force_type='master')
+			else:
+				with _stdout_redirect(StringIO.StringIO()) as log_stdout:
+					SetupController.setup_node(force_type='extra')
 
-			with _stdout_redirect(StringIO.StringIO()) as log_stdout:
-				SetupController.setup_node()
-		
 			log_stdout.seek(0)
 			log_output = log_stdout.read()
-		
+
 			if "Setup complete." and "Point your browser to" in log_output:
 				return True
 			else: 
@@ -340,7 +344,7 @@ def deploy_ovs(module):
 
 def post_deploy_check(module):
 	"""
-        DESCRIPTION: Post install check
+        DESCRIPTION: Post install check for services
 	IMPORTANT_INFO: commands module is deprecated in Python 3.0
         """
 
@@ -571,7 +575,7 @@ def main():
 		
 			if state == 'setup':
 				is_pre_created = create_preconfig(module, deploy)			
-				is_post_created = deploy_ovs(module)
+				is_post_created = deploy_ovs(module, deploy['ovs_master'])
 				is_post_check_ok = post_deploy_check(module)
 			
 				if is_pre_created == True and is_post_created == True and is_post_check_ok == True:
