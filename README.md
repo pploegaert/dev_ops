@@ -1,6 +1,6 @@
 # Open vStorage Devops Tools
 
-This repo contains handy tools to automaticly setup, manage and troubleshoot Open vStorage clusters.
+This repo contains handy tools to automaticaly setup, manage and troubleshoot Open vStorage clusters.
 
 ## Branch Info
 * The 'master' branch is marked as the main but unstable branch
