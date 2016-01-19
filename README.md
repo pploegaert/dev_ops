@@ -3,7 +3,7 @@
 This repo contains handy tools to automaticly setup, manage and troubleshoot Open vStorage clusters.
 
 ## Branch Info
-* The 'development' branch is marked as the main but unstable branch
+* The 'master' branch is marked as the main but unstable branch
 * The 'release' branches are the official releases of the dev_ops git
 * We'd love to have your contributions, read [Community Information](CONTRIBUTING.md) for notes on how to get started.
 
