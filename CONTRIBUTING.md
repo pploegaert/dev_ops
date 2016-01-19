@@ -25,7 +25,7 @@ Let us know what version of Ansible you are using.  Please supply the output of 
 
 ##### Ansible Configuration:
 
-What have you changed about your Ansible installation?  What configuration settings have you changed/added/removed?  Compare your /etc/ansible/ansible.cfg against a clean version from Github and let us know what's different.
+What have you changed about your Ansible installation? Please provide output of `/etc/ansible/ansible.cfg`, if default just add `N/A`
 
 ##### Environment:
 
@@ -38,7 +38,6 @@ Please summarize your request in this space. What are you trying to do?
 ##### Steps To Reproduce:
 
 * Provide your `/etc/ansible/hosts`
-* Provide your `/etc/ansible/ansible.cfg` (not if default)
 * Provide your Playbook
 
 ##### Expected Results:
