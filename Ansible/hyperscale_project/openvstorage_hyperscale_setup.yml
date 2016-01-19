@@ -58,7 +58,7 @@
 
     - name: installing the open vstorage controllers
       openvstorage:
-            state: pre_config
+            state: setup
             deploy:
                cluster_name: "{{ hostvars[item].cluster_name }}"
                master_ip: "{{ hostvars[item].install_master_ip }}"
@@ -75,7 +75,7 @@
 
     - name: installing the open vstorage compute nodes
       openvstorage:
-            state: pre_config
+            state: setup
             deploy:
                cluster_name: "{{ hostvars[item].cluster_name }}"
                master_ip: "{{ hostvars[item].install_master_ip }}"
