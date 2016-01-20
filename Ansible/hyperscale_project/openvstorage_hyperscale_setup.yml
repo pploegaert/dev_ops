@@ -30,9 +30,9 @@
     - name: add openvstorage apt-repo
       shell: echo "deb http://apt.openvstorage.org {{ ovs_version }} {{ ovs_branch }}" > /etc/apt/sources.list.d/ovsaptrepo.list
 
-#    - name: preparing required packages for all nodes (caution: this can take a while!)
-#      apt: name={{ item }} state=present force=yes update_cache=yes
-#      with_items: "{{ required_apt_packages }}"
+    - name: preparing required packages for all nodes (caution: this can take a while!)
+      apt: name={{ item }} state=present force=yes update_cache=yes
+      with_items: "{{ required_apt_packages }}"
 
     - name: preparing the open vstorage controllers
       shell: "apt-get update; apt-get install -y --force-yes -t {{ ovs_version }} openvstorage-backend"
