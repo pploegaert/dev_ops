@@ -224,7 +224,7 @@ Section: Methods
 def gather_facts():
 	"""
 	DESCRIPTION: Gather facts from OVS installation
-	IMPORTANT_INFO: Local configs will be deprecated in versions higher than 2.6.1
+	IMPORTANT_INFO: Local configs will be deprecated in versions higher than 2.6.1 due to ETC
 	"""
 	
 	facts = {}
@@ -275,7 +275,6 @@ def gather_facts():
 def create_preconfig(module, node_information):
         """
         DESCRIPTION: create OVS preconfig installation answer file
-	IMPORTANT_INFO: can be replaced with jinja2 implementation in future
         """
 
 	#preambe
@@ -316,6 +315,7 @@ def create_preconfig(module, node_information):
 def deploy_ovs(module, is_master):
         """
         DESCRIPTION: Deploy OVS on node in master or extra mode
+        @TODO: Catch unexcepted exceptions during installation
         """
 
 	if os.path.isfile('/tmp/openvstorage_preconfig.cfg'):
@@ -346,6 +346,7 @@ def post_deploy_check(module):
 	"""
         DESCRIPTION: Post install check for services
 	IMPORTANT_INFO: commands module is deprecated in Python 3.0
+	@TODO: Replace commands module, add check for 'ovsdb' arakoon
         """
 
 	failed_services = []
