@@ -1,0 +1,85 @@
+#Title: Open vStorage Hyperconverged Goes Ansible
+#Description: Installs Open vStorage on hyperconverged level
+#Maintainer: Jonas Libbrecht
+#Compatibility list: Eugene-updates
+#Version: 1.0
+
+---
+- hosts: cluster 
+  gather_facts: false
+  any_errors_fatal: true
+  vars_files:
+    - "group_vars/required_packages.yml"
+  
+  vars:
+      ovs_version: "eugene-updates"
+      ovs_branch: "main"
+
+  tasks:
+
+    - name: check hosts their availability
+      ping:
+
+#
+## Prepare for installation
+#
+
+    - name: add default nameserver
+      shell: "echo 'nameserver 8.8.8.8' > /etc/resolv.conf"
+
+    - name: add openvstorage apt-repo
+      shell: echo "deb http://apt.openvstorage.org {{ ovs_version }} {{ ovs_branch }}" > /etc/apt/sources.list.d/ovsaptrepo.list
+
+    - name: preparing required packages for all nodes (caution: this can take a while!)
+      apt: name={{ item }} state=present force=yes update_cache=yes
+      with_items: "{{ required_apt_packages }}"
+
+    - name: preparing the open vstorage controllers
+      shell: "apt-get update; apt-get install -y --force-yes -t {{ ovs_version }} openvstorage-hc"
+      run_once: true
+      delegate_to: "{{ item }}"
+      with_items: groups['controllers']
+
+    - name: preparing the open vstorage compute nodes
+      shell: "apt-get update; apt-get install -y --force-yes -t {{ ovs_version }} openvstorage-hc"
+      run_once: true
+      delegate_to: "{{ item }}"
+      with_items: groups['computenodes']
+
+#
+## Start installation
+#
+
+    - name: installing the open vstorage controllers
+      openvstorage:
+            state: setup
+            deploy:
+               cluster_name: "{{ hostvars[item].cluster_name }}"
+               master_ip: "{{ hostvars[item].install_master_ip }}"
+               master_password: "{{ hostvars[item].cluster_password }}"
+               ovs_master: "True"
+               hypervisor_name: "{{ hostvars[item].hypervisor_name }}"
+               hypervisor_ip: "{{ hostvars[item].ansible_host }}"
+               hypervisor_user: "{{ hostvars[item].cluster_user }}"
+               hypervisor_password: "{{ hostvars[item].cluster_password }}"
+               hypervisor_type: "{{ hostvars[item].cluster_type }}"
+      run_once: true
+      delegate_to: "{{ item }}"
+      with_items: groups['controllers']
+
+    - name: installing the open vstorage compute nodes
+      openvstorage:
+            state: setup
+            deploy:
+               cluster_name: "{{ hostvars[item].cluster_name }}"
+               master_ip: "{{ hostvars[item].install_master_ip }}"
+               master_password: "{{ hostvars[item].cluster_password }}"
+               ovs_master: "False"
+               hypervisor_name: "{{ hostvars[item].hypervisor_name }}"
+               hypervisor_ip: "{{ hostvars[item].ansible_host }}"
+               hypervisor_user: "{{ hostvars[item].cluster_user }}"
+               hypervisor_password: "{{ hostvars[item].cluster_password }}"
+               hypervisor_type: "{{ hostvars[item].cluster_type }}"
+      run_once: true
+      delegate_to: "{{ item }}"
+      with_items: groups['computenodes']
