@@ -33,7 +33,7 @@
     - name: add performance settings to cluster
       shell: echo 1 > /proc/sys/vm/swappiness; echo 'vm.swappiness=1' >> /etc/sysctl.conf; echo '134217728' > /proc/sys/vm/dirty_background_bytes; echo 'vm.dirty_background_bytes = 134217728' >> /etc/sysctl.conf
 
-    - name: preparing required packages for all nodes (caution: this can take a while!)
+    - name: preparing required packages for all nodes 
       apt: name={{ item }} state=present force=yes update_cache=yes
       with_items: "{{ required_apt_packages }}"
 
