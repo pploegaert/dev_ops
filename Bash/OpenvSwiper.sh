@@ -26,6 +26,9 @@ set +f
 rm -rf /opt/OpenvStorage
 rm -rf /opt/alba-asdmanager
 
+#remove remaining avahi records
+rm -rf /etc/avahi/services/*
+
 #kill remaining ovs services and log files (fix for 2.4 webapps problem)
 # rm -rf /etc/init/ovs-*
 # rm -rf /etc/init/alba-*
