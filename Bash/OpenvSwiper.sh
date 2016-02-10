@@ -109,6 +109,7 @@ rm -rf /var/log/upstart/ovs*
 rm -rf /var/log/upstart/alba*
 rm -rf /var/log/ovs
 
-#remove ovs user
+#remove ovs user and group
 ps aux | awk '/^ovs/  { print $2 }' | xargs kill -9
 deluser --remove-home ovs 
+delgroup ovs
