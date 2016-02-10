@@ -4,7 +4,7 @@
 #Description: removes OpenvStorage & its dependencies 
 #Maintainer: Jonas Libbrecht
 #E-mail: jonas.libbrecht@openvstorage.com
-#Version: 2.5 (compatible with Chicago, Denver, Eugene & Eugene-updates)
+#Version: 2.5 (compatible with Chicago, Denver, Eugene, Eugene-updates & Unstable (Currently Fargo))
 
 set -f 
 
