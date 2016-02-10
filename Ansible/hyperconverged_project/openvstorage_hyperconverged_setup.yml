@@ -1,5 +1,5 @@
-#Title: Open vStorage Hyperscale Goes Ansible
-#Description: Installs Open vStorage on hyperscale level
+#Title: Open vStorage Hyperconverged Goes Ansible
+#Description: Installs Open vStorage on hyperconverged level
 #Maintainer: Jonas Libbrecht
 #Compatibility list: Eugene-updates
 #Version: 1.0
@@ -33,27 +33,21 @@
     - name: add performance settings to cluster
       shell: echo 1 > /proc/sys/vm/swappiness; echo 'vm.swappiness=1' >> /etc/sysctl.conf; echo '134217728' > /proc/sys/vm/dirty_background_bytes; echo 'vm.dirty_background_bytes = 134217728' >> /etc/sysctl.conf
 
-    - name: preparing required packages for all nodes
+    - name: preparing required packages for all nodes 
       apt: name={{ item }} state=present force=yes update_cache=yes
       with_items: "{{ required_apt_packages }}"
 
     - name: preparing the open vstorage controllers
-      shell: "apt-get update; apt-get install -y --force-yes -t {{ ovs_version }} openvstorage-backend"
+      shell: "apt-get update; apt-get install -y --force-yes -t {{ ovs_version }} openvstorage-hc"
       run_once: true
       delegate_to: "{{ item }}"
       with_items: groups['controllers']
 
     - name: preparing the open vstorage compute nodes
-      shell: "apt-get update; apt-get install -y --force-yes -t {{ ovs_version }} openvstorage-backend"
+      shell: "apt-get update; apt-get install -y --force-yes -t {{ ovs_version }} openvstorage-hc"
       run_once: true
       delegate_to: "{{ item }}"
       with_items: groups['computenodes']
-
-    - name: preparing the open vstorage storage nodes
-      shell: "apt-get update; apt-get install -y --force-yes -t {{ ovs_version }} openvstorage-sdm"
-      run_once: true
-      delegate_to: "{{ item }}"
-      with_items: groups['storagenodes']
 
 #
 ## Start installation

@@ -1,0 +1,27 @@
+#
+# This is the default ansible 'hosts' file.
+#
+
+#cluster overview
+
+[controllers]
+ctl01 ansible_host=10.100.69.171 hypervisor_name=mas01
+ctl02 ansible_host=10.100.69.172 hypervisor_name=mas02
+ctl03 ansible_host=10.100.69.173 hypervisor_name=mas03
+
+[computenodes]
+cmp01 ansible_host=10.100.69.181 hypervisor_name=hyp01
+
+#cluster details
+
+[cluster:children]
+controllers
+computenodes
+
+[cluster:vars]
+cluster_name=testcluster100
+cluster_user=root
+cluster_password=rooter
+cluster_type=KVM
+install_master_ip=10.100.69.171
+
