@@ -34,7 +34,8 @@ rm -rf /etc/avahi/services/*
 # rm -rf /etc/init/alba-*
 for f in $(ls /etc/init/ovs-*.conf /etc/init/alba-*.conf)
 do
-  mv ${f} ${f}-disabled
+  rm ${f}
+  #mv ${f} ${f}-disabled
 done
 
 #remove remaining log files 
