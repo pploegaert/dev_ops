@@ -106,10 +106,14 @@ rmdir /mnt/alba-asd/* /mnt/alba-asd
 #remove ovs preconfig
 rm -f /tmp/openvstorage_preconfig.cfg
 
-#remove ovs & alba logfiles
+#remove ovs, alba and other associated logfiles
 rm -rf /var/log/upstart/ovs*
 rm -rf /var/log/upstart/alba*
 rm -rf /var/log/ovs
+rm -rf /var/gunicorn
+rm -rf /var/rabbitmq
+rm -rf /var/nginx
+rm -f /var/log/memcached.log
 
 #remove ovs user and group
 ps aux | awk '/^ovs/  { print $2 }' | xargs kill -9
