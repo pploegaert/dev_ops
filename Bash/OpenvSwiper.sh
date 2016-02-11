@@ -9,7 +9,7 @@
 set -f 
 
 #variables
-packages='openvstorage* rabbitmq-server* alba* volumedriver-base* volumedriver-server* gunicorn* memcached* python-memcache* nginx* arakoon*'
+packages='openvstorage* rabbitmq-server* alba* volumedriver-base* volumedriver-server* gunicorn* memcached* python-memcache* nginx* arakoon* etcd python-etcd'
 
 #removes OVS packages from dpkg
 apt-get purge -qq -y --allow-unauthenticated $packages
@@ -47,6 +47,7 @@ rm -rf /var/log/arakoon
 pkill arakoon
 pkill alba
 pkill asd
+pkill etcd
 
 pkill -9 -f OpenvStorage
 pkill -9 failovercache
