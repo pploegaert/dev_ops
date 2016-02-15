@@ -66,6 +66,10 @@ umount -lf /mnt/ssd*
 umount -lf /mnt/hdd*
 umount -lf /mnt/alba-asd/*
 
+#remove avahi leftovers from alba and ovs
+rm /etc/avahi/services/ovs_cluster.service
+rm /etc/avahi/services/asdnode.service
+
 # wipe all info from used disks (filesystem + partition)
 awk '/^#/ { next } /\/mnt\/alba-asd\// { print $1,$2 }' /etc/fstab | while read p m
 do
