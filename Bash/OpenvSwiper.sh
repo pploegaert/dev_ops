@@ -33,7 +33,7 @@ rm -rf /etc/avahi/services/*
 #kill remaining ovs services and log files (fix for 2.4 webapps problem)
 # rm -rf /etc/init/ovs-*
 # rm -rf /etc/init/alba-*
-for f in $(ls /etc/init/ovs-*.conf /etc/init/alba-*.conf)
+for f in $(ls /etc/init/ovs-*.conf /etc/init/alba-*.conf /etc/init/asd-*.conf)
 do
   rm ${f}
   #mv ${f} ${f}-disabled
