@@ -4,7 +4,7 @@
 #Description: removes OpenvStorage & its dependencies 
 #Maintainer: Jonas Libbrecht
 #E-mail: jonas.libbrecht@openvstorage.com
-#Version: 2.5 (compatible with Chicago, Denver, Eugene, Eugene-updates & Unstable (Currently Fargo))
+#Version: 3 (compatible with Chicago, Denver, Eugene, Eugene-updates & Unstable (Currently Fargo))
 
 set -f 
 
@@ -54,7 +54,7 @@ pkill -9 -f OpenvStorage
 pkill -9 failovercache
 
 #removes known_hosts, authorized_hosts and used private/public keys in OVS
-#in 3.0 it will remove the needed lines in the files
+#in 4.0 it will remove the needed lines in the files
 rm -rf /root/.ssh/*
 
 #remove arakoon on ssd's, due to bug: OVS-3671
