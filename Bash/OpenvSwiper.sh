@@ -108,8 +108,10 @@ rmdir /mnt/ssd*
 rmdir /mnt/hdd*
 rmdir /mnt/alba-asd/* /mnt/alba-asd
 
-#remove ovs preconfig
+#remove ovs preconfig and apt information
 rm -f /tmp/openvstorage_preconfig.cfg
+rm -f /etc/apt/sources.list.d/ovsaptrepo.list
+apt-get update
 
 #remove ovs, alba and other associated logfiles
 rm -rf /var/log/upstart/ovs*
