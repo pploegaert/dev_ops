@@ -99,6 +99,12 @@ done
 
 awk '/fuse\./ { print $2 }' /proc/mounts | xargs fusermount -u 
 
+#add support for NVMe (delete 10 partitions, this should be enough :D)
+for i in {1..10}
+do
+  parted -s /dev/nvme0n1 rm $i
+done
+
 #remove persistent mounts (and keep backup for safety reasons)
 cp /etc/fstab /etc/fstab.backup
 sed -i -e '/# BEGIN Open vStorage/,/# END Open vStorage/d' \
