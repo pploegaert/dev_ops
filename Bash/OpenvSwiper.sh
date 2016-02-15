@@ -54,6 +54,10 @@ pkill etcd
 pkill -9 -f OpenvStorage
 pkill -9 failovercache
 
+#remove gunicorn, ovs-webapps.api pid & runtime locks
+rm -f /run/ovs_api.pid
+rm -rf /run/lock/ovs_*
+
 #removes known_hosts, authorized_hosts and used private/public keys in OVS
 #in 4.0 it will remove the needed lines in the files
 rm -rf /root/.ssh/*
