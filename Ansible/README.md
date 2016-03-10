@@ -6,6 +6,13 @@ The Open vStorage support team has created an easy way to install your future, h
 ##Manual and more information...
 If you click on the respective cluster, you can find a full manual to install it through Ansible
 
+##If something goes wrong...
+If something goes wrong you can run the dev_ops Open vStorage wiper to redo the installation. 
+Just go to: `dev_ops/Bash/` and run on the nodes: `bash OpenvSwiper.sh`
+
+If you need a one liner to execute the wiper from your Ansible configuration master:
+`ansible cluster -m shell -a "wget https://raw.githubusercontent.com/openvstorage/dev_ops/master/Bash/OpenvSwiper.sh -O /root/wiper.sh; bash /root/wiper.sh; bash /root/wiper.sh" -u root -k`
+
 ##Compatibility
 * Open vStorage HyperScale (Enterprise Level Cloud)
 * Open vStorage HyperConverged (Small - Medium level Cloud)
