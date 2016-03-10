@@ -6,6 +6,17 @@ The Open vStorage support team has created an easy way to install your future, h
 ##Manual and more information...
 If you click on the respective cluster, you can find a full manual to install it through Ansible
 
+Also try to have the latest Ansible installation, we tested this with:
+```
+ansible:
+  Installed: 2.0.1.0-1ppa~trusty
+  Candidate: 2.0.1.0-1ppa~trusty
+  Version table:
+ *** 2.0.1.0-1ppa~trusty 0
+        500 http://ppa.launchpad.net/ansible/ansible/ubuntu/ trusty/main amd64 Packages
+        100 /var/lib/dpkg/status
+```
+
 ##If something goes wrong...
 If something goes wrong you can run the dev_ops Open vStorage wiper to redo the installation. 
 Just go to: `dev_ops/Bash/` and run on the nodes: `bash OpenvSwiper.sh`
