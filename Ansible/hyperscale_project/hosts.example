@@ -8,8 +8,6 @@
 ctl01 ansible_host=10.100.69.201 hypervisor_name=mas01
 ctl02 ansible_host=10.100.69.202 hypervisor_name=mas02
 ctl03 ansible_host=10.100.69.203 hypervisor_name=mas03
-ctl04 ansible_host=10.100.69.204 hypervisor_name=mas04
-ctl05 ansible_host=10.100.69.205 hypervisor_name=mas05
 
 [computenodes]
 cmp01 ansible_host=10.100.69.211 hypervisor_name=hyp01
