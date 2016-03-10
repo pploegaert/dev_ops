@@ -86,11 +86,11 @@ install_master_ip=10.100.69.171
 
 * Starting the installation
 ```
-cd dev_ops/Ansible/hyperconverged_project/
+cd dev_ops/Ansible/hyperscale_project/
  
 #Execute in debug mode
-ansible-playbook openvstorage_hyperconverged_setup.yml -u root -k -vvvv
+ansible-playbook openvstorage_hyperscale_setup.yml -u root -k -vvvv
  
 #Execute in normal mode
-ansible-playbook openvstorage_hyperconverged_setup.yml -u root -k
+ansible-playbook openvstorage_hyperscale_setup.yml -u root -k
 ```

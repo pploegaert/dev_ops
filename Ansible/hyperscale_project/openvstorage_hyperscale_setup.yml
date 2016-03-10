@@ -2,7 +2,7 @@
 #Description: Installs Open vStorage on hyperscale level
 #Maintainer: Jonas Libbrecht
 #Compatibility list: Eugene-updates
-#Version: 1.0
+#Version: 2.0
 
 ---
 - hosts: cluster 

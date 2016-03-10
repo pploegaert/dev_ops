@@ -1,15 +1,13 @@
 #Title: Open vStorage Hyperconverged Goes Ansible
-#Description: Installs Open vStorage on hyperconverged level
+#Description: Installs Open vStorage on hyperscale level
 #Maintainer: Jonas Libbrecht
 #Compatibility list: Eugene-updates
-#Version: 1.0
+#Version: 2.0
 
 ---
 - hosts: cluster 
   gather_facts: false
   any_errors_fatal: true
-  vars_files:
-    - "group_vars/required_packages.yml"
   
   vars:
       ovs_version: "eugene-updates"
@@ -17,12 +15,12 @@
 
   tasks:
 
+#####################################################################
+#                     Preparing the cluster                         #
+#####################################################################
+
     - name: check hosts their availability
       ping:
-
-#
-## Prepare for installation
-#
 
     - name: add default nameserver
       shell: "echo 'nameserver 8.8.8.8' > /etc/resolv.conf"
@@ -33,56 +31,100 @@
     - name: add performance settings to cluster
       shell: echo 1 > /proc/sys/vm/swappiness; echo 'vm.swappiness=1' >> /etc/sysctl.conf; echo '134217728' > /proc/sys/vm/dirty_background_bytes; echo 'vm.dirty_background_bytes = 134217728' >> /etc/sysctl.conf
 
-    - name: preparing required packages for all nodes 
-      apt: name={{ item }} state=present force=yes update_cache=yes
-      with_items: "{{ required_apt_packages }}"
+    - name: install required packages
+      apt: update_cache=yes name={{ item }} state=present
+      with_items:
+        - kvm 
+        - libvirt0 
+        - python-libvirt 
+        - virtinst
+        - ntp
+        - htop
+        - nmon
+        - hdparm
+        - vlan
+        - bridge-utils
+        - iperf
+        - smartmontools
+        - byobu
+        - git
+        - vim
+        - qemu-utils
+        - libvirt-bin
+
+#####################################################################
+#                   Preparing the controllers                       #
+#####################################################################
+
+- hosts: controllers
+  gather_facts: false
+  any_errors_fatal: true
+  tasks:
 
     - name: preparing the open vstorage controllers
-      shell: "apt-get update; apt-get install -y --force-yes -t {{ ovs_version }} openvstorage-hc"
-      run_once: true
-      delegate_to: "{{ item }}"
-      with_items: groups['controllers']
+      apt: force=yes update_cache=yes name=openvstorage-hc state=present
 
-    - name: preparing the open vstorage compute nodes
-      shell: "apt-get update; apt-get install -y --force-yes -t {{ ovs_version }} openvstorage-hc"
-      run_once: true
-      delegate_to: "{{ item }}"
-      with_items: groups['computenodes']
+    - name: giving access to libvirt to access vpools
+      shell: usermod -a -G ovs libvirt-qemu
 
-#
-## Start installation
-#
+- hosts: controllers
+  gather_facts: false
+  any_errors_fatal: true
+  serial: 1
+  tasks:
 
     - name: installing the open vstorage controllers
       openvstorage:
             state: setup
             deploy:
-               cluster_name: "{{ hostvars[item].cluster_name }}"
-               master_ip: "{{ hostvars[item].install_master_ip }}"
-               master_password: "{{ hostvars[item].cluster_password }}"
+               cluster_name: "{{ hostvars[inventory_hostname].cluster_name }}"
+               master_ip: "{{ hostvars[inventory_hostname].install_master_ip }}"
+               master_password: "{{ hostvars[inventory_hostname].cluster_password }}"
                ovs_master: "True"
-               hypervisor_name: "{{ hostvars[item].hypervisor_name }}"
-               hypervisor_ip: "{{ hostvars[item].ansible_host }}"
-               hypervisor_user: "{{ hostvars[item].cluster_user }}"
-               hypervisor_password: "{{ hostvars[item].cluster_password }}"
-               hypervisor_type: "{{ hostvars[item].cluster_type }}"
-      run_once: true
-      delegate_to: "{{ item }}"
-      with_items: groups['controllers']
+               hypervisor_name: "{{ hostvars[inventory_hostname].hypervisor_name }}"
+               hypervisor_ip: "{{ hostvars[inventory_hostname].ansible_host }}"
+               hypervisor_user: "{{ hostvars[inventory_hostname].cluster_user }}"
+               hypervisor_password: "{{ hostvars[inventory_hostname].cluster_password }}"
+               hypervisor_type: "{{ hostvars[inventory_hostname].cluster_type }}"
+
+    - name: sleep for a few seconds
+      command: sleep 5
+
+#####################################################################
+#                  Preparing the computesnodes                      #
+#####################################################################
+
+- hosts: computenodes
+  gather_facts: false
+  any_errors_fatal: true
+  tasks:
+
+    - name: preparing the open vstorage computenodes
+      apt: force=yes update_cache=yes name=openvstorage-hc state=present
+
+    - name: giving access to libvirt to access vpools
+      shell: usermod -a -G ovs libvirt-qemu
+
+- hosts: computenodes
+  gather_facts: false
+  any_errors_fatal: true
+  serial: 1
+  tasks:
 
     - name: installing the open vstorage compute nodes
       openvstorage:
             state: setup
             deploy:
-               cluster_name: "{{ hostvars[item].cluster_name }}"
-               master_ip: "{{ hostvars[item].install_master_ip }}"
-               master_password: "{{ hostvars[item].cluster_password }}"
+               cluster_name: "{{ hostvars[inventory_hostname].cluster_name }}"
+               master_ip: "{{ hostvars[inventory_hostname].install_master_ip }}"
+               master_password: "{{ hostvars[inventory_hostname].cluster_password }}"
                ovs_master: "False"
-               hypervisor_name: "{{ hostvars[item].hypervisor_name }}"
-               hypervisor_ip: "{{ hostvars[item].ansible_host }}"
-               hypervisor_user: "{{ hostvars[item].cluster_user }}"
-               hypervisor_password: "{{ hostvars[item].cluster_password }}"
-               hypervisor_type: "{{ hostvars[item].cluster_type }}"
-      run_once: true
-      delegate_to: "{{ item }}"
-      with_items: groups['computenodes']
+               hypervisor_name: "{{ hostvars[inventory_hostname].hypervisor_name }}"
+               hypervisor_ip: "{{ hostvars[inventory_hostname].ansible_host }}"
+               hypervisor_user: "{{ hostvars[inventory_hostname].cluster_user }}"
+               hypervisor_password: "{{ hostvars[inventory_hostname].cluster_password }}"
+               hypervisor_type: "{{ hostvars[inventory_hostname].cluster_type }}"
+
+    - name: sleep for a few seconds
+      shell: sleep 5
+
