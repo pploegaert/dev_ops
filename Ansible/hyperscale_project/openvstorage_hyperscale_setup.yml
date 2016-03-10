@@ -52,6 +52,9 @@
         - qemu-utils
         - libvirt-bin
 
+    - name: ntp reload
+      shell: /etc/init.d/ntp reload
+
 #####################################################################
 #                   Preparing the controllers                       #
 #####################################################################
