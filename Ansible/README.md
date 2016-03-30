@@ -18,11 +18,22 @@ ansible:
 ```
 
 ##If something goes wrong...
-If something goes wrong you can run the dev_ops Open vStorage wiper to redo the installation. 
-Just go to: `dev_ops/Bash/` and run on the nodes: `bash OpenvSwiper.sh`
 
-If you need a one liner to execute the wiper from your Ansible configuration master:
-`ansible cluster -m shell -a "wget https://raw.githubusercontent.com/openvstorage/dev_ops/master/Bash/OpenvSwiper.sh -O /root/wiper.sh; bash /root/wiper.sh; bash /root/wiper.sh" -u root -k`
+* **Open vSwiper:**
+  If something goes wrong you can run the dev_ops Open vStorage wiper to redo the installation. 
+  Just go to: `dev_ops/Bash/` and run on the nodes: `bash OpenvSwiper.sh`
+  
+  If you need a one liner to execute the wiper from your Ansible configuration master:
+  ```
+  ansible cluster -m shell -a "wget https://raw.githubusercontent.com/openvstorage/dev_ops/master/Bash/OpenvSwiper.sh -O /root/wiper.sh; bash /root/wiper.sh; bash /root/wiper.sh" -u root -k`
+  ```
+
+* **Ansible** `host_key_checking`: 
+  If you get host key checking errors when you start the script, change this in `/etc/ansible/ansible.cfg`:
+  ```
+  # uncomment this to disable SSH key host checking
+  host_key_checking = False
+  ```
 
 ##Compatibility
 * Open vStorage HyperScale (Enterprise Level Cloud)
