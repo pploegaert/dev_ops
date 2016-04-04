@@ -34,6 +34,21 @@ ansible:
   # uncomment this to disable SSH key host checking
   host_key_checking = False
   ```
+  
+##Performance issue's
+If the installation is on a large scale, you will probably experience a slow installation.
+This is because Ansible only performance 5 parallel connections by default.
+If you want to install packages faster you can uncomment & edit the `forks` parameter in `/etc/ansible/ansible.cfg`:
+
+* By default: 
+```
+#forks          = 5
+```
+
+* Change to: 
+```
+forks          = 200
+```
 
 ##Compatibility
 * Open vStorage HyperScale (Enterprise Level Cloud)
