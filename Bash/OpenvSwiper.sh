@@ -7,6 +7,9 @@
 #Warning: Use at own risk
 #Version: 3 (compatible with Chicago, Denver, Eugene, Eugene-updates & Unstable (Currently Fargo))
 
+#remove keys/values from etcd so future setups don't have problems
+etcdctl rm /ovs -recursive
+
 set -f 
 
 #variables
