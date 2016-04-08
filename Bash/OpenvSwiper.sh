@@ -122,8 +122,9 @@ rmdir /mnt/ssd*
 rmdir /mnt/hdd*
 rmdir /mnt/alba-asd/* /mnt/alba-asd
 
-#remove ovs preconfig and apt information
+#remove ovs (resume)preconfig and apt information
 rm -f /tmp/openvstorage_preconfig.cfg
+rm -f /tmp/openvstorage_resumeconfig.cfg
 rm -f /etc/apt/sources.list.d/ovsaptrepo.list
 apt-get update
 
