@@ -136,3 +136,6 @@ rm -f /var/log/memcached.log
 ps aux | awk '/^ovs/  { print $2 }' | xargs kill -9
 deluser --remove-home ovs 
 delgroup ovs
+
+#remove rest
+rm /etc/openvstorage_id
