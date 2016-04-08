@@ -29,6 +29,7 @@ set +f
 #removes leftovers of OVS
 rm -rf /opt/OpenvStorage
 rm -rf /opt/alba-asdmanager
+rm -rf /opt/asd-manager
 
 #remove remaining avahi records
 rm -rf /etc/avahi/services/*
