@@ -1,0 +1,13 @@
+- hosts: testcluster159
+  tasks:
+
+    - name: installing the open vstorage controllers
+      openvstorage:
+            state: setup
+            deploy:
+               master_ip: "10.100.198.3"
+               master_password: "rooter"
+               node_type: "master"
+               hypervisor_name: "mas1"
+               hypervisor_ip: "10.100.198.3"
+               hypervisor_type: "KVM"
