@@ -26,7 +26,7 @@ try:
 except ImportError:
     pass
 
-if len(commands.getoutput('ps auxf | grep asdmanager | grep python').split(' ')) != 1:
+if len(commands.getoutput('ps auxf | grep [a]sdmanager').split(' ')) != 1:
     asdmanager_configured = True
 
 # detect if openvstorage has already been installed/configured
@@ -242,11 +242,13 @@ def gather_facts():
 
     # fetch present information from 'ovs setup'
     setup_information = {
-        'is_installed': ovs_present,
-        'setup_completed': ovs_configured
+        'ovs_installed': ovs_present,
+        'ovs_setup_completed': ovs_configured,
+        'alba_installed': asdmanager_present,
+        'alba_setup_completed': asdmanager_configured
     }
 
-    facts.update({'setup': setup_information})
+    facts.update({'general': setup_information})
 
     # fetch ovs information if ovs is installed and configured
     if ovs_present and ovs_configured:
@@ -257,7 +259,7 @@ def gather_facts():
         openvstorage_id.close()
         support = EtcdConfiguration.get('/ovs/framework/support')
 
-        cluster_information = {
+        ovs_cluster_information = {
             'cluster_id': str(EtcdConfiguration.get('/ovs/framework/cluster_id')),
             'node_id': str(node_id),
             'grid_ip': str(EtcdConfiguration.get('/ovs/framework/hosts/{0}/ip'.format(node_id))),
@@ -265,13 +267,14 @@ def gather_facts():
             'base_dir': str(EtcdConfiguration.get('/ovs/framework/paths').get('basedir')),
             'heartbeat_enabled': str(support.get('enabled')),
             'remote_support_enabled': str(support.get('enablesupport')),
+            'etcd_proxy': '{0}:2379'.format(node_id)
         }
-        facts.update({'cluster': cluster_information})
+        facts.update({'ovs': ovs_cluster_information})
 
     return facts
 
 
-def create_preconfig(module, node_information):
+def create_ovs_preconfig(module, node_information):
     """
     Create Open vStorage pre-config installation answer file
 
@@ -292,7 +295,7 @@ def create_preconfig(module, node_information):
             os.makedirs(required_directory)
 
         # deploy the pre-config
-        with open('/opt/OpenvStorage/config/openvstorage_preconfig.json', 'w+') as preconfig:
+        with open('/opt/OpenvStorage/config/openvstorage_preconfig.json', 'w') as preconfig:
 
             data = {
                 "setup":
@@ -310,7 +313,7 @@ def create_preconfig(module, node_information):
             json.dump(data, preconfig)
 
     except Exception, e:
-        module.fail_json(msg="Creating OVS pre-config failed with exception: {0}".format(e))
+        module.fail_json(msg="Creating Open vStorage pre-config failed with exception: {0}".format(e))
 
     return os.path.isfile('/opt/OpenvStorage/config/openvstorage_preconfig.json')
 
@@ -321,6 +324,9 @@ def deploy_ovs(module):
 
     :param module: Ansible module
     :type module: Ansible module
+
+    :returns if Open vStorage deployment was correctly executed
+    :rtype bool
     """
 
     if os.path.isfile('/opt/OpenvStorage/config/openvstorage_preconfig.json'):
@@ -350,31 +356,82 @@ def deploy_ovs(module):
         module.fail_json(msg="Pre-config is not available at this time!")
 
 
-def deploy_asd_managers(module):
+def create_alba_preconfig(module, node_information):
     """
-    Start the ASD MANAGER setup on a future Open vStorage node
+    Creates the ASD MANAGER pre-config on a future Open vStorage node
+
+    :param module: Ansible module
+    :type module: Ansible module
+
+    :returns if the preconfig exists
+    :rtype bool
+    """
+
+    try:
+        # create required directories
+        required_directory = '/opt/OpenvStorage/config'
+        if not os.path.exists(required_directory):
+            os.makedirs(required_directory)
+
+        # deploy the pre-config
+        if not os.path.exists('/opt/OpenvStorage/config/openvstorage_preconfig.json'):
+            with open('/opt/OpenvStorage/config/openvstorage_preconfig.json', 'w') as preconfig:
+
+                data = {
+                    "asdmanager":
+                    {
+                        "api_ip": node_information['api_ip'],
+                        "api_port": int(node_information['api_port'])
+                    }
+                }
+
+                json.dump(data, preconfig)
+
+        else:
+            preconfig = open('/opt/OpenvStorage/config/openvstorage_preconfig.json', 'r+w')
+
+            data = json.load(preconfig)
+            preconfig.seek(0)  # clear file till offset 0
+            preconfig.truncate()
+
+            if not data.get('asdmanager'):
+                data['asdmanager'] = {
+                    "api_ip": node_information['api_ip'],
+                    "api_port": int(node_information['api_port'])
+                }
+            json.dump(data, preconfig)
+            preconfig.close()
+
+    except Exception, e:
+        module.fail_json(msg="Creating Alba pre-config failed with exception: {0}".format(e))
+
+    return os.path.isfile('/opt/OpenvStorage/config/openvstorage_preconfig.json')
+
+def deploy_alba(module):
+    """
+    Start the ASD MANAGER setup on a future Open vStorage node (only for hyperscale/geoscale)
+    We assume that the etcd proxy has already been set up and started.
 
     :param module: Ansible module
     :type module: Ansible module
     """
 
-    # gather facts from ovs master nodes to form proxy
+    if asdmanager_present:
+        if not asdmanager_configured:
+            sys.path.append('/opt/asd-manager/')
+            from source.asdmanager import setup
 
-    # do proxy deployment and post install
+            with _stdout_redirect(StringIO.StringIO()) as log_stdout:
+                setup()
 
-    # -- mkdir -p /opt/asd-manager/db/etcd/config/data
+            log_stdout.seek(0)
+            log_output = log_stdout.read()
 
-    # -- chown alba:alba /opt/asd-manager/db/etcd/config/data -R
-
-    # start proxy
-
-    # start installation
-
-    # do post installation check
-
-    # return status from _asd_managers_post_deploy_check
-
-    return True
+            return _asd_managers_post_deploy_check(log_output)
+        else:
+            module.fail_json(msg="Alba can't be redeployed.")
+    else:
+        module.fail_json(msg="openvstorage-sdm packages seem to be absent on this node.")
 
 
 def _asd_managers_post_deploy_check(log_output):
@@ -386,6 +443,9 @@ def _asd_managers_post_deploy_check(log_output):
 
     :param log_output: log output from a python file
     :type log_output: str
+
+    :returns if ASD manager setup was successfully executed
+    :rtype bool
     """
 
     if "ASD Manager setup completed" in log_output:
@@ -403,6 +463,9 @@ def _ovs_post_deploy_check(log_output):
 
     :param log_output: log output from a python file
     :type log_output: str
+
+    :returns if Open vStorage setup was successfully executed
+    :rtype bool
     """
 
     if "Setup complete." and "Point your browser to" in log_output:
@@ -411,12 +474,15 @@ def _ovs_post_deploy_check(log_output):
         return False
 
 
-def post_deploy_check(module):
+def framework_post_deploy_check(module):
     """
-    Post-install check for non-openvstorage services
+    Post-install check for non-openvstorage framework services
 
     :param module: Ansible module
     :type module: Ansible module
+
+    :returns if all requested services are up
+    :rtype bool
     """
 
     failed_services = []
@@ -428,7 +494,7 @@ def post_deploy_check(module):
         while count < 5:
             if service not in main_output:
                 if service == 'rabbitmq-server':
-                    start_rabbitmq(module, True)
+                    start_rabbitmq(module)
                 else:
                     commands.getoutput('service {0} start'.format(service))
             else:
@@ -449,6 +515,12 @@ def post_deploy_check(module):
 def stop_rabbitmq(module):
     """
     Stops rabbitMQ the clean way
+
+    :param module: Ansible module
+    :type module: Ansible module
+
+    :returns if rabbitmq stop was correctly executed
+    :rtype bool
     """
 
     output = commands.getoutput('rabbitmqctl stop_app; sleep 3')
@@ -458,22 +530,37 @@ def stop_rabbitmq(module):
         return True
 
 
-def start_rabbitmq(module, is_post_deploy_check):
+def start_rabbitmq(module):
     """
     Starts rabbitMQ the clean way
+
+    :param module: Ansible module
+    :type module: Ansible module
+
+    :param is_post_deploy_check: tells the function if this is triggered as post deployment check of Open vStorage
+           or not.
+    :type is_post_deploy_check: bool
+
+    :returns log output of
+    :rtype bool
     """
 
     output = commands.getoutput('rabbitmqctl start_app; sleep 3; rabbitmqctl set_policy ha-all "^(volumerouter|ovs_.*)$" \'{"ha-mode":"all"}\'; sleep 3')
     if 'done' not in output and output.count("done") == 2:
-        if is_post_deploy_check:
-            return output
-        else:
-            module.fail_json(msg="An unexpected error has occured during clean start of rabbitMQ: \n{0}".format(output))
+        return True
+    else:
+        module.fail_json(msg="An unexpected error has occured during clean start of rabbitMQ: \n{0}".format(output))
 
 
 def reset_rabbitmq(module):
     """
     Resets rabbitMQ the clean way
+
+    :param module: Ansible module
+    :type module: Ansible module
+
+    :returns if rabbitmq reset was correctly executed
+    :rtype bool
     """
     output = commands.getoutput("rabbitmqctl stop_app; sleep 3; rabbitmqctl reset; sleep 3")
     if 'done' not in output and output.count("done") == 2:
@@ -482,9 +569,12 @@ def reset_rabbitmq(module):
         return True
 
 
-def flush_node(module, storagerouter_ip):
+def flush_node(storagerouter_ip):
     """
     Flush write buffer to backend
+
+    :param storagerouter_ip: ip of a storage router were to perform the flush
+    :type storagerouter_ip: str
     """
 
     sr_info = StorageRouterList.get_by_ip(storagerouter_ip)
@@ -508,6 +598,9 @@ def flush_node(module, storagerouter_ip):
 def health_check(module):
     """
     Perform health check on Open vStorage local node
+
+    :param module: Ansible module
+    :type module: Ansible module
     """
 
     module.fail_json(msg="Health check module not yet implemented, it still in development stage")
@@ -568,27 +661,27 @@ def main():
 
     config_deploy_alba = {
         'api_ip': str,
-        'api_port': str
+        'api_port': int
     }
 
     module = AnsibleModule(
-            argument_spec = dict(
-            facts = dict(required=False, default=False, type='bool'),
-            state = dict(
+            argument_spec=dict(
+            facts=dict(required=False, default=False, type='bool'),
+            state=dict(
                 required=True,
                 choices=[
-                    'present',  # says hello to ovs_node
-                    'setup',  # execute pre_config and setup
-                    'pre_config',  # execute pre_config only
-                    'shutdown',  # execute flush and clean shutdown (one or more nodes)
-                    'restart',  # execute flush and clean restart (one or more nodes)
-                    'health_check',  # execute health check
-                    'reconfigure',  # configure or reconfigure something in ovs
+                    'present',       # pre-install: says hello to ovs_node
+                    'setup',         # pre-install: execute pre_config and setup
+                    'pre_config',    # pre-install: execute pre_config only
+                    'shutdown',      # post-install: execute flush and clean shutdown (one or more nodes)
+                    'restart',       # post-install: execute flush and clean restart (one or more nodes)
+                    'health_check',  # post-install: execute health check
+                    'reconfigure',   # post-install: configure or reconfigure something in ovs
                 ]),
-            deploy_ovs = dict(required=False, type='dict', default={}),   # needs state: setup or pre_config
-            deploy_alba = dict(required=False, type='dict', default={}),  # needs state: setup or pre_config
-            flush = dict(required=False, default=None, type='str'),
-            health_check = dict(
+            ovs=dict(required=False, type='dict', default={}),   # needs state: setup or pre_config
+            alba=dict(required=False, type='dict', default={}),  # needs state: setup or pre_config
+            flush=dict(required=False, default=None, type='str'),
+            health_check=dict(
                 required=False,
                 default='present',
                 choices=[
@@ -596,7 +689,7 @@ def main():
                     'basic',
                     'extended']
             ),
-            reconfigure_node = dict(
+            reconfigure_node=dict(
                 required=False,
                 default='present',
                 choices=[
@@ -605,7 +698,7 @@ def main():
                     'remove_role_disk']
             ),  # perform node-wise change (e.g. configure role on disk, configure vpool,
                 # configure hypervisor_management_center)
-            reconfigure_cluster = dict(
+            reconfigure_cluster=dict(
                 required=False,
                 default='present',
                 choices=[
@@ -624,42 +717,63 @@ def main():
             ['deploy', 'reconfigure_cluster'],
         ],
         required_together=[
-            ['state', 'deploy_ovs'],
-            ['state', 'deploy_alba'],
+            ['state', 'ovs'],
+            ['state', 'alba'],
         ],
     )
 
-    # facts can be executed at all times
-    ovs_facts = module.params['ovs_facts']
-    if ovs_facts:
+    """
+    Gathering facts
+    """
+    if module.params['facts']:
         module.exit_json(ansible_facts=gather_facts())
 
-    # check if Open vStorage IS installed
     if ovs_present or asdmanager_present:
         # check if Open vStorage is NOT configured yet
-        if not ovs_configured:
+        if not ovs_configured and ovs_present:
             state = module.params['state']
-            deploy = module.params['deploy_ovs']
+            deploy = module.params['ovs']
 
             if bool(deploy):
                 if len(_get_wrong_keys(deploy, config_deploy_ovs)) > 0:
-                    module.fail_json(msg="Following keys are not valid in the deploy argument: "+",".join(_get_wrong_keys(deploy, config_deploy_ovs)))
+                    module.fail_json(msg="Following keys are not valid in the deploy argument: " +
+                                         ",".join(_get_wrong_keys(deploy, config_deploy_ovs)))
                 elif len(_get_wrong_values(deploy, config_deploy_ovs)) > 0:
-                    module.fail_json(msg="Following values are not correct (wrong type): {0}".format(str(_get_wrong_values(deploy, config_deploy_ovs)).strip('[]')))
+                    module.fail_json(msg="Following values are not correct (wrong type): {0}"
+                                     .format(str(_get_wrong_values(deploy, config_deploy_ovs)).strip('[]')))
 
                 if state == 'setup':
-                    is_pre_created = create_preconfig(module, deploy)
-                    is_post_created = deploy_ovs(module)
-                    is_post_check_ok = post_deploy_check(module)
+                    is_pre_created = create_ovs_preconfig(module, deploy)
 
-                    if is_pre_created and is_post_created and is_post_check_ok:
+                    # check if asdmanagers need to be preconfigured (for openvstorage-hc)
+                    if asdmanager_present and is_pre_created:
+                        alba = module.params['alba']
+                        if bool(alba):
+                            create_alba_preconfig(module, alba)
+                        else:
+                            module.fail_json(msg="No alba module present although the 'openvstorage-sdm' packages "
+                                                 "are available ...")
+
+                    is_post_created = deploy_ovs(module)
+                    is_post_check_ok = framework_post_deploy_check(module)
+
+                    if is_post_created and is_post_check_ok:
                         module.exit_json(changed=True)
                     else:
-                        module.fail_json(msg="Error during deployment, please check /var/log/ovs/lib.log"
-                                             " for more information: \n%s" % is_post_created)
+                        module.fail_json(msg="Error during Open vStorage deployment, please check /var/log/ovs/lib.log"
+                                             " for more information: \n{0}".format(is_post_created))
 
                 elif state == 'pre_config':
-                    is_created = create_preconfig(module, deploy)
+                    is_created = create_ovs_preconfig(module, deploy)
+
+                    # check if asdmanagers need to be preconfigured (for openvstorage-hc)
+                    if asdmanager_present and is_created:
+                        alba = module.params['alba']
+                        if bool(alba):
+                            create_alba_preconfig(module, alba)
+                        else:
+                            module.fail_json(msg="No alba module present although the 'openvstorage-sdm' packages "
+                                                 "are available!")
 
                     if is_created:
                             module.exit_json(changed=is_created)
@@ -672,24 +786,61 @@ def main():
                 module.exit_json(changed=False)
 
             elif state in ['setup', 'pre_config']:
-                module.fail_json(msg="State '{0}' is not available if deploy module is not included".format(state))
+                module.fail_json(msg="'openvstorage' seems to be installed but no 'ovs' module seems to be provided"
+                                 .format(state))
 
             else:
-                module.fail_json(msg="State '{0}' is not available if OVS is not installed".format(ovs_present))
+                module.fail_json(msg="State '{0}' is not available "
+                                     "if Open vStorage is not installed".format(state))
 
         # check if asdmanager is NOT configured yet
         elif not asdmanager_configured:
             state = module.params['state']
-            deploy = module.params['deploy_alba']
+            deploy = module.params['alba']
 
+            if bool(deploy):
+                if len(_get_wrong_keys(deploy, config_deploy_alba)) > 0:
+                    module.fail_json(msg="Following keys are not valid in the deploy argument: "+","
+                                     .join(_get_wrong_keys(deploy, config_deploy_ovs)))
+                elif len(_get_wrong_values(deploy, config_deploy_alba)) > 0:
+                    module.fail_json(msg="Following values are not correct (wrong type): {0}"
+                                     .format(str(_get_wrong_values(deploy, config_deploy_ovs)).strip('[]')))
 
+                if state == 'setup':
+                    is_pre_created = create_alba_preconfig(module, deploy)
+                    is_post_created = deploy_alba(module)
 
+                    if is_pre_created and is_post_created:
+                        module.exit_json(changed=True)
+                    else:
+                        module.fail_json(msg="Error during alba deployment, "
+                                             "please check the logfiles for more information")
+
+                elif state == 'pre_config':
+                    is_created = create_alba_preconfig(module, deploy)
+
+                    if is_created:
+                            module.exit_json(changed=True)
+                    else:
+                            module.fail_json(msg="Pre-config failed to create due to an unexpected error.")
+                else:
+                    module.fail_json(msg="Deploy module cannot be combined with state '{0}'".format(state))
+
+            elif state == 'present':
+                module.exit_json(changed=False)
+
+            elif state in ['setup', 'pre_config']:
+                module.fail_json(msg="State '{0}' is not available if deploy ['ovs', 'alba'] module is not included"
+                                 .format(state))
+
+            else:
+                module.fail_json(msg="State '{0}' is not available if Open vStorage is not installed"
+                                 .format(ovs_present))
 
         else:
-            module.fail_json(msg="post-install commands for Open vStorage or asdmanager are not yet available!")
+            module.fail_json(msg="Post-install commands for Open vStorage or Alba are not yet available!")
     else:
-        module.fail_json(msg="The Open vStorage packages do not seem installed at this time!")
-
+        module.fail_json(msg="No Open vStorage packages do not seem installed at this time!")
 
 
 from ansible.module_utils.basic import *

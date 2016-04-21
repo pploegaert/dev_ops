@@ -1,13 +1,68 @@
-- hosts: testcluster159
+- hosts: 127.0.0.1
+  vars:
+      ovs_version: "unstable"
+
   tasks:
+    - name: add openvstorage apt-repo
+      shell: echo "deb http://apt.openvstorage.org {{ ovs_version }} main" > /etc/apt/sources.list.d/ovsaptrepo.list
+
+    - name: install packages
 
     - name: installing the open vstorage controllers
       openvstorage:
-            state: setup
-            deploy:
+            state: pre_config
+            ovs:
+               master_ip: "10.100.198.1"
+               master_password: "rooter"
+               node_type: "master"
+               hypervisor_name: "mas1"
+               hypervisor_ip: "10.100.198.1"
+               hypervisor_type: "KVM"
+      run_once: true
+      delegate_to: "10.100.198.1"
+
+    - name: installing the open vstorage controllers
+      openvstorage:
+            state: pre_config
+            ovs:
+               master_ip: "10.100.198.2"
+               master_password: "rooter"
+               node_type: "master"
+               hypervisor_name: "mas1"
+               hypervisor_ip: "10.100.198.2"
+               hypervisor_type: "KVM"
+      run_once: true
+      delegate_to: "10.100.198.2"
+
+    - name: installing the open vstorage controllers
+      openvstorage:
+            state: pre_config
+            ovs:
                master_ip: "10.100.198.3"
                master_password: "rooter"
                node_type: "master"
                hypervisor_name: "mas1"
                hypervisor_ip: "10.100.198.3"
                hypervisor_type: "KVM"
+      run_once: true
+      delegate_to: "10.100.198.3"
+
+    - name: installing the open vstorage controllers
+      openvstorage:
+            state: pre_config
+            ovs:
+               master_ip: "10.100.198.4"
+               master_password: "rooter"
+               node_type: "extra"
+               hypervisor_name: "mas1"
+               hypervisor_ip: "10.100.198.4"
+               hypervisor_type: "KVM"
+      run_once: true
+      delegate_to: "10.100.198.4"
+
+#    - name: installing the open vstorage storage nodes
+#      openvstorage:
+#            state: pre_config
+#            alba:
+#               api_ip: "10.100.198.11"
+#               api_port: 8500
