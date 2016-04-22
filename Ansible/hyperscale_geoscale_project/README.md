@@ -1,9 +1,9 @@
-# Open vStorage - Hyperscale Setup through Ansible
+# Open vStorage - GeoScale / Hyperscale Setup through Ansible
 
 ##Intro
 
 ###Description
-Installs a Open vStorage HyperScale cluster through Ansible
+Installs a Open vStorage GeoScale / HyperScale cluster through Ansible
 
 ###Requirements
 * 1 Configuration master: 1 Linux VM with Ansible 2.0 or higher installed
@@ -17,7 +17,7 @@ Installs a Open vStorage HyperScale cluster through Ansible
 
 ```
 sudo apt-get install git
-git clone https://github.com/openvstorage/dev_ops.git
+git clone -b fargo-release3 https://github.com/openvstorage/dev_ops.git
 ```
 
 ###Installing & configuring
@@ -95,7 +95,7 @@ ansible-playbook openvstorage_hyperscale_setup.yml -u root -k -vvvv
 ansible-playbook openvstorage_hyperscale_setup.yml -u root -k
 ```
 
-## Playbook runtime: (3 controller nodes, 1 compute node & 3 storage nodes)
+## Playbook runtime: (3 controller nodes, 1 compute node & 3 storage nodes on 1Gbit network)
 ```
 Friday 22 April 2016  16:34:28 +0200 (0:00:00.473)       0:12:47.262 ********** 
 =============================================================================== 
