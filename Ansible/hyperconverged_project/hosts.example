@@ -5,31 +5,20 @@
 #cluster overview
 
 [controllers]
-ctl01 ansible_host=10.100.69.201 hypervisor_name=mas01
-ctl02 ansible_host=10.100.69.202 hypervisor_name=mas02
-ctl03 ansible_host=10.100.69.203 hypervisor_name=mas03
+ctl01 ansible_host=10.100.198.1 hypervisor_name=mas01 api_port=8500 excellerated_backend=false
+ctl02 ansible_host=10.100.198.2 hypervisor_name=mas02 api_port=8500 excellerated_backend=false
+ctl03 ansible_host=10.100.198.3 hypervisor_name=mas03 api_port=8500 excellerated_backend=false
 
 [computenodes]
-cmp01 ansible_host=10.100.69.211 hypervisor_name=hyp01
-cmp02 ansible_host=10.100.69.212 hypervisor_name=hyp02
-cmp03 ansible_host=10.100.69.213 hypervisor_name=hyp03
-
-[storagenodes]
-str01 ansible_host=10.100.69.221
-str02 ansible_host=10.100.69.222
-str03 ansible_host=10.100.69.223
+cmp01 ansible_host=10.100.198.4 hypervisor_name=hyp01 api_port=8500 excellerated_backend=false
 
 #cluster details
 
 [cluster:children]
 controllers
 computenodes
-storagenodes
 
 [cluster:vars]
-cluster_name=testcluster200
-cluster_user=root
 cluster_password=rooter
 cluster_type=KVM
-install_master_ip=10.100.69.201
-
+install_master_ip=10.100.198.1

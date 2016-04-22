@@ -6,11 +6,27 @@
 
 - hosts: cluster
   gather_facts: false
+  any_errors_fatal: true
   vars:
       ovs_version: "unstable"
   tasks:
+    - name: check hosts their availability
+      ping:
+
     - name: add openvstorage apt-repo
       shell: echo "deb http://apt.openvstorage.org {{ ovs_version }} main" > /etc/apt/sources.list.d/ovsaptrepo.list
+
+    - name: install required packages
+      apt: update_cache=yes name={{ item }} state=present
+      with_items:
+        - kvm
+        - libvirt0
+        - python-libvirt
+        - virtinst
+        - ntp
+
+    - name: add performance settings to cluster
+      shell: echo 1 > /proc/sys/vm/swappiness; echo 'vm.swappiness=1' >> /etc/sysctl.conf; echo '134217728' > /proc/sys/vm/dirty_background_bytes; echo 'vm.dirty_background_bytes = 134217728' >> /etc/sysctl.conf
 
 - hosts: controllers
   gather_facts: false
@@ -98,3 +114,9 @@
             alba:
                api_ip: "{{ hostvars[inventory_hostname].ansible_host }}"
                api_port: "{{ hostvars[inventory_hostname].api_port }}"
+
+- hosts: cluster
+  gather_facts: false
+  tasks:
+    - name: finalizing setup
+      shell: usermod -a -G ovs libvirt-qemu

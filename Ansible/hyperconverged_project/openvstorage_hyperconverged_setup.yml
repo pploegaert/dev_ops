@@ -1,130 +1,83 @@
-#Title: Open vStorage Hyperconverged Goes Ansible
-#Description: Installs Open vStorage on hyperscale level
-#Maintainer: Jonas Libbrecht
-#Compatibility list: Eugene-updates
-#Version: 2.0
+# Title: Open vStorage HyperConverged Goes Ansible
+# Description: Installs Open vStorage on HyperConverged level
+# Maintainer: Jonas Libbrecht
+# Compatibility list: Fargo
+# Version: 3.0
 
----
-- hosts: cluster 
+- hosts: cluster
   gather_facts: false
   any_errors_fatal: true
-  
   vars:
-      ovs_version: "eugene-updates"
-      ovs_branch: "main"
-
+      ovs_version: "unstable"
   tasks:
-
-#####################################################################
-#                     Preparing the cluster                         #
-#####################################################################
-
     - name: check hosts their availability
       ping:
 
-    - name: add default nameserver
-      shell: "echo 'nameserver 8.8.8.8' > /etc/resolv.conf"
-
     - name: add openvstorage apt-repo
-      shell: echo "deb http://apt.openvstorage.org {{ ovs_version }} {{ ovs_branch }}" > /etc/apt/sources.list.d/ovsaptrepo.list
-
-    - name: add performance settings to cluster
-      shell: echo 1 > /proc/sys/vm/swappiness; echo 'vm.swappiness=1' >> /etc/sysctl.conf; echo '134217728' > /proc/sys/vm/dirty_background_bytes; echo 'vm.dirty_background_bytes = 134217728' >> /etc/sysctl.conf
+      shell: echo "deb http://apt.openvstorage.org {{ ovs_version }} main" > /etc/apt/sources.list.d/ovsaptrepo.list
 
     - name: install required packages
       apt: update_cache=yes name={{ item }} state=present
       with_items:
-        - kvm 
-        - libvirt0 
-        - python-libvirt 
+        - kvm
+        - libvirt0
+        - python-libvirt
         - virtinst
         - ntp
-        - htop
-        - nmon
-        - hdparm
-        - vlan
-        - bridge-utils
-        - iperf
-        - smartmontools
-        - byobu
-        - git
-        - vim
-        - qemu-utils
-        - libvirt-bin
 
-#####################################################################
-#                   Preparing the controllers                       #
-#####################################################################
+    - name: add performance settings to cluster
+      shell: echo 1 > /proc/sys/vm/swappiness; echo 'vm.swappiness=1' >> /etc/sysctl.conf; echo '134217728' > /proc/sys/vm/dirty_background_bytes; echo 'vm.dirty_background_bytes = 134217728' >> /etc/sysctl.conf
 
 - hosts: controllers
   gather_facts: false
-  any_errors_fatal: true
   tasks:
+    - name: install controllers packages
+      apt: name=openvstorage-hc state=present force=yes update_cache=yes
 
-    - name: preparing the open vstorage controllers
-      apt: force=yes update_cache=yes name=openvstorage-hc state=present
-
-    - name: giving access to libvirt to access vpools
-      shell: usermod -a -G ovs libvirt-qemu
+- hosts: computenodes
+  gather_facts: false
+  tasks:
+    - name: install compute packages
+      apt: name=openvstorage-hc state=present force=yes update_cache=yes
 
 - hosts: controllers
   gather_facts: false
-  any_errors_fatal: true
   serial: 1
   tasks:
-
     - name: installing the open vstorage controllers
       openvstorage:
             state: setup
-            deploy:
-               cluster_name: "{{ hostvars[inventory_hostname].cluster_name }}"
+            ovs:
                master_ip: "{{ hostvars[inventory_hostname].install_master_ip }}"
                master_password: "{{ hostvars[inventory_hostname].cluster_password }}"
-               ovs_master: "True"
+               node_type: "master"
                hypervisor_name: "{{ hostvars[inventory_hostname].hypervisor_name }}"
                hypervisor_ip: "{{ hostvars[inventory_hostname].ansible_host }}"
-               hypervisor_user: "{{ hostvars[inventory_hostname].cluster_user }}"
-               hypervisor_password: "{{ hostvars[inventory_hostname].cluster_password }}"
                hypervisor_type: "{{ hostvars[inventory_hostname].cluster_type }}"
-
-    - name: sleep for a few seconds
-      command: sleep 5
-
-#####################################################################
-#                  Preparing the computesnodes                      #
-#####################################################################
+            alba:
+               api_ip: "{{ hostvars[inventory_hostname].ansible_host }}"
+               api_port: "{{ hostvars[inventory_hostname].api_port }}"
 
 - hosts: computenodes
   gather_facts: false
-  any_errors_fatal: true
-  tasks:
-
-    - name: preparing the open vstorage computenodes
-      apt: force=yes update_cache=yes name=openvstorage-hc state=present
-
-    - name: giving access to libvirt to access vpools
-      shell: usermod -a -G ovs libvirt-qemu
-
-- hosts: computenodes
-  gather_facts: false
-  any_errors_fatal: true
   serial: 1
   tasks:
-
     - name: installing the open vstorage compute nodes
       openvstorage:
             state: setup
-            deploy:
-               cluster_name: "{{ hostvars[inventory_hostname].cluster_name }}"
+            ovs:
                master_ip: "{{ hostvars[inventory_hostname].install_master_ip }}"
                master_password: "{{ hostvars[inventory_hostname].cluster_password }}"
-               ovs_master: "False"
+               node_type: "extra"
                hypervisor_name: "{{ hostvars[inventory_hostname].hypervisor_name }}"
                hypervisor_ip: "{{ hostvars[inventory_hostname].ansible_host }}"
-               hypervisor_user: "{{ hostvars[inventory_hostname].cluster_user }}"
-               hypervisor_password: "{{ hostvars[inventory_hostname].cluster_password }}"
                hypervisor_type: "{{ hostvars[inventory_hostname].cluster_type }}"
+            alba:
+               api_ip: "{{ hostvars[inventory_hostname].ansible_host }}"
+               api_port: "{{ hostvars[inventory_hostname].api_port }}"
 
-    - name: sleep for a few seconds
-      shell: sleep 5
-
+- hosts: cluster
+  gather_facts: false
+  tasks:
+    - name: finalizing setup
+      shell: usermod -a -G ovs libvirt-qemu
