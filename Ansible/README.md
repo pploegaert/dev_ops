@@ -57,5 +57,5 @@ callback_whitelist = profile_tasks
 ```
 
 ##Compatibility
-* Open vStorage HyperScale (Enterprise Level Cloud)
+* Open vStorage HyperScale / GeoScale (Enterprise Level Cloud)
 * Open vStorage HyperConverged (Small - Medium level Cloud)

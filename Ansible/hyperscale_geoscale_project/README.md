@@ -95,7 +95,7 @@ ansible-playbook openvstorage_hyperscale_setup.yml -u root -k -vvvv
 ansible-playbook openvstorage_hyperscale_setup.yml -u root -k
 ```
 
-* Playbook runtime: (3 controller nodes, 1 compute node & 3 storage nodes)
+## Playbook runtime: (3 controller nodes, 1 compute node & 3 storage nodes)
 ```
 Friday 22 April 2016  16:34:28 +0200 (0:00:00.473)       0:12:47.262 ********** 
 =============================================================================== 
