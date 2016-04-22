@@ -16,7 +16,7 @@ Installs a Open vStorage HyperConverged cluster through Ansible
 
 ```
 sudo apt-get install git
-git clone clone -b fargo-release3 https://github.com/openvstorage/dev_ops.git
+git clone -b fargo-release3 https://github.com/openvstorage/dev_ops.git
 ```
 
 ###Installing & configuring
