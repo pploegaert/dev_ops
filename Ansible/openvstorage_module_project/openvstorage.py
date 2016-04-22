@@ -258,16 +258,17 @@ def gather_facts():
         node_id = openvstorage_id.read().strip()
         openvstorage_id.close()
         support = EtcdConfiguration.get('/ovs/framework/support')
+        grid_ip = str(EtcdConfiguration.get('/ovs/framework/hosts/{0}/ip'.format(node_id)))
 
         ovs_cluster_information = {
             'cluster_id': str(EtcdConfiguration.get('/ovs/framework/cluster_id')),
             'node_id': str(node_id),
-            'grid_ip': str(EtcdConfiguration.get('/ovs/framework/hosts/{0}/ip'.format(node_id))),
+            'grid_ip': grid_ip,
             'node_type': str(EtcdConfiguration.get('/ovs/framework/hosts/{0}/type'.format(node_id))),
             'base_dir': str(EtcdConfiguration.get('/ovs/framework/paths').get('basedir')),
             'heartbeat_enabled': str(support.get('enabled')),
             'remote_support_enabled': str(support.get('enablesupport')),
-            'etcd_proxy': '{0}:2379'.format(node_id)
+            'etcd_proxy': '{0}=http://{1}:2380'.format(node_id, grid_ip)
         }
         facts.update({'ovs': ovs_cluster_information})
 
@@ -661,7 +662,7 @@ def main():
 
     config_deploy_alba = {
         'api_ip': str,
-        'api_port': int
+        'api_port': str
     }
 
     module = AnsibleModule(

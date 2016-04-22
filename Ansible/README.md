@@ -9,10 +9,10 @@ If you click on the respective cluster, you can find a full manual to install it
 Also try to have the latest Ansible installation, we tested this with:
 ```
 ansible:
-  Installed: 2.0.1.0-1ppa~trusty
-  Candidate: 2.0.1.0-1ppa~trusty
+  Installed: 2.0.2.0-1ppa~trusty
+  Candidate: 2.0.2.0-1ppa~trusty
   Version table:
- *** 2.0.1.0-1ppa~trusty 0
+ *** 2.0.2.0-1ppa~trusty 0
         500 http://ppa.launchpad.net/ansible/ansible/ubuntu/ trusty/main amd64 Packages
         100 /var/lib/dpkg/status
 ```
@@ -48,6 +48,12 @@ If you want to install packages faster you can uncomment & edit the `forks` para
 * Change to: 
 ```
 forks          = 200
+```
+
+## How fast is the playbook?
+If you want to know how long the installation last, you can enable the Ansible `profile_tasks` in `/etc/ansible/ansible.cfg`:
+``` 
+callback_whitelist = profile_tasks 
 ```
 
 ##Compatibility

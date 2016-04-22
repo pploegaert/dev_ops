@@ -1,0 +1,25 @@
+description "Etcd (proxy) upstart for cluster config"
+
+start on (local-filesystems and started networking)
+stop on runlevel [016]
+
+kill timeout 60
+respawn
+respawn limit 10 5
+console log
+setuid alba
+setgid alba
+
+env PYTHONPATH=/opt/asd-manager
+chdir /opt/asd-manager
+
+pre-start script
+    if [ ! -d /opt/asd-manager/run ]
+    then
+        mkdir /opt/asd-manager/run
+        chown alba:alba /opt/asd-manager/run
+    fi
+    echo `etcd --version | grep etcd | awk '{print $3}'` > /opt/asd-manager/run/etcd-config.version
+end script
+
+exec etcd -proxy on -data-dir /opt/asd-manager/db/etcd/config/data -listen-client-urls http://127.0.0.1:2379 -initial-cluster {% for etcd_proxy in etcd_cluster %}{{ etcd_proxy }}{% if not loop.last %},{% endif %}{% endfor %}

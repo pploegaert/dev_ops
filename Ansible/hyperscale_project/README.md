@@ -53,35 +53,35 @@ library        = /usr/lib/ansible
 * Configuring ansible for your Open vStorage cluster (`/etc/ansible/hosts`)
 ```
 #
-# This is the default ansible 'hosts' file. (edit these variables to your needs)
+# This is the default ansible 'hosts' file.
 #
- 
+
 #cluster overview
- 
+
 [controllers]
-ctl01 ansible_host=10.100.69.171 hypervisor_name=mas01
-ctl02 ansible_host=10.100.69.172 hypervisor_name=mas02
-ctl03 ansible_host=10.100.69.173 hypervisor_name=mas03
- 
+ctl01 ansible_host=10.100.198.1 hypervisor_name=mas01
+ctl02 ansible_host=10.100.198.2 hypervisor_name=mas02
+ctl03 ansible_host=10.100.198.3 hypervisor_name=mas03
+
 [computenodes]
-cmp01 ansible_host=10.100.69.181 hypervisor_name=hyp01
- 
+cmp01 ansible_host=10.100.198.4 hypervisor_name=hyp01
+
 [storagenodes]
-str01 ansible_host=10.100.69.191
- 
+str01 ansible_host=10.100.198.11 api_port=8500 excellerated_backend=false
+str02 ansible_host=10.100.198.12 api_port=8500 excellerated_backend=false
+str03 ansible_host=10.100.198.13 api_port=8500 excellerated_backend=true
+
 #cluster details
- 
+
 [cluster:children]
 controllers
 computenodes
 storagenodes
- 
+
 [cluster:vars]
-cluster_name=testcluster100
-cluster_user=root
 cluster_password=rooter
 cluster_type=KVM
-install_master_ip=10.100.69.171
+install_master_ip=10.100.198.1
 ```
 
 * Starting the installation
@@ -93,4 +93,26 @@ ansible-playbook openvstorage_hyperscale_setup.yml -u root -k -vvvv
  
 #Execute in normal mode
 ansible-playbook openvstorage_hyperscale_setup.yml -u root -k
+```
+
+* Playbook runtime: (3 controller nodes, 1 compute node & 3 storage nodes)
+```
+Friday 22 April 2016  16:34:28 +0200 (0:00:00.473)       0:12:47.262 ********** 
+=============================================================================== 
+TASK: install controllers packages ------------------------------------ 204.00s
+TASK: install compute packages ---------------------------------------- 201.67s
+TASK: installing the open vstorage controllers ------------------------ 118.46s
+TASK: installing the open vstorage compute nodes ----------------------- 41.38s
+TASK: install storage packages ----------------------------------------- 36.65s
+TASK: add openvstorage apt-repo ---------------------------------------- 12.61s
+TASK: fetch all etcd endpoints from controllers ------------------------- 2.07s
+TASK: create etcd proxy on storage nodes -------------------------------- 2.01s
+TASK: installing the open vstorage storage nodes ------------------------ 0.47s
+TASK: start etcd proxy on storage nodes --------------------------------- 0.26s
+TASK: create required directories for alba on storage nodes ------------- 0.18s
+TASK: parse etcd endpoints to a list ------------------------------------ 0.03s
+
+real    12m49.579s
+user    0m58.128s
+sys     0m30.332s
 ```
