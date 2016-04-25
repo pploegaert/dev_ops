@@ -89,7 +89,7 @@ install_master_ip=10.100.198.1
 * Starting the installation
 
 ```
-cd dev_ops/Ansible/hyperscale_project/
+cd dev_ops/Ansible/hyperscale_geoscale_project/
  
 #Execute in debug mode
 ansible-playbook openvstorage_hyperscale_setup.yml -u root -k -vvvv
