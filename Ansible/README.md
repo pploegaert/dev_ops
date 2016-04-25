@@ -25,7 +25,7 @@ ansible:
   
   If you need a one liner to execute the wiper from your Ansible configuration master:
   ```
-  ansible cluster -m shell -a "wget https://raw.githubusercontent.com/openvstorage/dev_ops/master/Bash/OpenvSwiper.sh -O /root/wiper.sh; bash /root/wiper.sh; bash /root/wiper.sh" -u root -k`
+  ansible cluster -m shell -a "wget https://raw.githubusercontent.com/openvstorage/dev_ops/fargo-release3/Bash/OpenvSwiper.sh -O /root/wiper.sh; bash /root/wiper.sh; bash /root/wiper.sh" -u root -k`
   ```
 
 * **Ansible** `host_key_checking`: 
