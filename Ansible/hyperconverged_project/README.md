@@ -16,7 +16,7 @@ Installs a Open vStorage HyperConverged cluster through Ansible
 
 ```
 sudo apt-get install git
-git clone https://github.com/openvstorage/dev_ops.git
+git clone -b fargo-release3 https://github.com/openvstorage/dev_ops.git
 ```
 
 ###Installing & configuring
@@ -37,6 +37,7 @@ cp dev_ops/Ansible/openvstorage_module_project/openvstorage.py /usr/lib/ansible
 ```
 
 * Configuring ansible libraries (`/etc/ansible/ansible.cfg`)
+
 ```
 ##change this part
  
@@ -50,36 +51,36 @@ library        = /usr/lib/ansible
 ```
 
 * Configuring ansible for your Open vStorage cluster (`/etc/ansible/hosts`)
+
 ```
 #
-# This is the default ansible 'hosts' file. (edit these variables to your needs)
+# This is the default ansible 'hosts' file.
 #
- 
+
 #cluster overview
- 
+
 [controllers]
-ctl01 ansible_host=10.100.69.171 hypervisor_name=mas01
-ctl02 ansible_host=10.100.69.172 hypervisor_name=mas02
-ctl03 ansible_host=10.100.69.173 hypervisor_name=mas03
- 
+ctl01 ansible_host=10.100.198.1 hypervisor_name=mas01 api_port=8500 excellerated_backend=false
+ctl02 ansible_host=10.100.198.2 hypervisor_name=mas02 api_port=8500 excellerated_backend=false
+ctl03 ansible_host=10.100.198.3 hypervisor_name=mas03 api_port=8500 excellerated_backend=false
+
 [computenodes]
-cmp01 ansible_host=10.100.69.181 hypervisor_name=hyp01
- 
+cmp01 ansible_host=10.100.198.4 hypervisor_name=hyp01 api_port=8500 excellerated_backend=false
+
 #cluster details
- 
+
 [cluster:children]
 controllers
 computenodes
- 
+
 [cluster:vars]
-cluster_name=testcluster100
-cluster_user=root
 cluster_password=rooter
 cluster_type=KVM
-install_master_ip=10.100.69.171
+install_master_ip=10.100.198.1
 ```
 
 * Starting the installation
+
 ```
 cd dev_ops/Ansible/hyperconverged_project/
  
@@ -88,4 +89,23 @@ ansible-playbook openvstorage_hyperconverged_setup.yml -u root -k -vvvv
  
 #Execute in normal mode
 ansible-playbook openvstorage_hyperconverged_setup.yml -u root -k
+```
+
+## Playbook runtime: (3 controller nodes, 1 compute node on 1Gbit network)
+```
+Friday 22 April 2016  17:35:26 +0200 (0:00:12.733)       0:11:35.012 ********** 
+=============================================================================== 
+TASK: install controllers packages ------------------------------------ 176.44s
+TASK: install compute packages ---------------------------------------- 168.71s
+TASK: installing the open vstorage controllers ------------------------ 120.92s
+TASK: installing the open vstorage compute nodes ----------------------- 43.94s
+TASK: install required packages ---------------------------------------- 19.26s
+TASK: finalizing setup ------------------------------------------------- 12.73s
+TASK: check hosts their availability ----------------------------------- 12.57s
+TASK: add performance settings to cluster ------------------------------- 0.27s
+TASK: add openvstorage apt-repo ----------------------------------------- 0.20s
+
+real    11m37.835s
+user    0m55.560s
+sys     0m29.860s
 ```

@@ -1,5 +1,5 @@
-# Title: Open vStorage HyperConverged Goes Ansible
-# Description: Installs Open vStorage on HyperConverged level
+# Title: Open vStorage HyperScale/GeoScale Goes Ansible
+# Description: Installs Open vStorage on hyperscale/geoscale level
 # Maintainer: Jonas Libbrecht
 # Compatibility list: Fargo
 # Version: 3.0
@@ -32,13 +32,19 @@
   gather_facts: false
   tasks:
     - name: install controllers packages
-      apt: name=openvstorage-hc state=present force=yes update_cache=yes
+      apt: name=openvstorage-backend state=present force=yes update_cache=yes
 
 - hosts: computenodes
   gather_facts: false
   tasks:
     - name: install compute packages
-      apt: name=openvstorage-hc state=present force=yes update_cache=yes
+      apt: name=openvstorage-backend state=present force=yes update_cache=yes
+
+- hosts: storagenodes
+  gather_facts: false
+  tasks:
+    - name: install storage packages
+      apt: name=openvstorage-sdm state=present force=yes update_cache=yes
 
 - hosts: controllers
   gather_facts: false
@@ -54,9 +60,6 @@
                hypervisor_name: "{{ hostvars[inventory_hostname].hypervisor_name }}"
                hypervisor_ip: "{{ hostvars[inventory_hostname].ansible_host }}"
                hypervisor_type: "{{ hostvars[inventory_hostname].cluster_type }}"
-            alba:
-               api_ip: "{{ hostvars[inventory_hostname].ansible_host }}"
-               api_port: "{{ hostvars[inventory_hostname].api_port }}"
 
 - hosts: computenodes
   gather_facts: false
@@ -72,6 +75,42 @@
                hypervisor_name: "{{ hostvars[inventory_hostname].hypervisor_name }}"
                hypervisor_ip: "{{ hostvars[inventory_hostname].ansible_host }}"
                hypervisor_type: "{{ hostvars[inventory_hostname].cluster_type }}"
+
+- hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: fetch all etcd endpoints from controllers
+      openvstorage:
+          state: present
+          facts: true
+      delegate_to: "{{ item }}"
+      with_items: groups['controllers']
+      register: etcd_endpoints
+
+    - name: parse etcd endpoints to a list
+      set_fact: etcd_cluster="{{ etcd_endpoints.results | map(attribute='ansible_facts.ovs.etcd_proxy') | list }}"
+
+    - name: create etcd proxy on storage nodes
+      template: src=templates/sdm-etcd-config.conf.j2 dest=/etc/init/sdm-etcd-config.conf
+      delegate_to: "{{ item }}"
+      with_items: groups['storagenodes']
+
+- hosts: storagenodes
+  gather_facts: false
+  tasks:
+    - name: create required directories for alba on storage nodes
+      file: path=/opt/asd-manager/db/etcd/config/data state=directory owner=alba group=alba recurse=yes
+
+    - name: start etcd proxy on storage nodes
+      service: name=sdm-etcd-config state=started
+
+- hosts: storagenodes
+  gather_facts: false
+  serial: 1
+  tasks:
+    - name: installing the open vstorage storage nodes
+      openvstorage:
+            state: setup
             alba:
                api_ip: "{{ hostvars[inventory_hostname].ansible_host }}"
                api_port: "{{ hostvars[inventory_hostname].api_port }}"
