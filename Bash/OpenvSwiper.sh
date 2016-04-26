@@ -154,7 +154,9 @@ if [ $shortname = $(cat /etc/hostname) ]; then
     shortname=""
 fi
 
-cat << EOF > /root/hosts
+cp /etc/hosts /etc/hosts.backup
+
+cat << EOF > /etc/hosts
 127.0.0.1   localhost
 127.0.1.1   $fqdn $shortname
 
