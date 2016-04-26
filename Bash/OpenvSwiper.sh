@@ -144,3 +144,23 @@ delgroup ovs
 
 #remove rest
 rm /etc/openvstorage_id
+
+#reset /etc/hosts file
+fqdn=$(hostname -f)
+shortname=$(hostname -s)
+
+if [ $shortname = $(cat /etc/hostname) ]; then
+    # remove shortname because fqdn = shortname
+    shortname=""
+fi
+
+cat << EOF > /root/hosts
+127.0.0.1   localhost
+127.0.1.1   $fqdn $shortname
+
+# The following lines are desirable for IPv6 capable hosts
+::1     ip6-localhost ip6-loopback
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+EOF
+
