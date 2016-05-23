@@ -12,4 +12,7 @@ Open vStorage and it's automation is quality checked to the highest level. Unfor
 
 If you want to submit a bug, please read the [Community Information](CONTRIBUTING.md) for notes on how to get started.
 
+## License
+The Open vStorage HealthCheck is licensed under the [GNU AFFERO GENERAL PUBLIC LICENSE Version 3](https://www.gnu.org/licenses/agpl.html).
+
 

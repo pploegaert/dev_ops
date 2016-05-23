@@ -4,6 +4,7 @@
 Title: Open vAnsible
 Description: Ansible Module for Open vStorage
 Maintainer: Jonas Libbrecht
+Licensed under: AGPLv3
 Version: 3.0
 """
 
@@ -268,7 +269,8 @@ def gather_facts():
             'base_dir': str(EtcdConfiguration.get('/ovs/framework/paths').get('basedir')),
             'heartbeat_enabled': str(support.get('enabled')),
             'remote_support_enabled': str(support.get('enablesupport')),
-            'etcd_proxy': '{0}=http://{1}:2380'.format(node_id, grid_ip)
+            'etcd_proxy': '{0}=http://{1}:2380'.format(node_id, grid_ip),
+            'partition_config': System.get_my_storagerouter().partition_config
         }
         facts.update({'ovs': ovs_cluster_information})
 
@@ -690,23 +692,11 @@ def main():
                     'basic',
                     'extended']
             ),
-            reconfigure_node=dict(
-                required=False,
-                default='present',
-                choices=[
-                    'present',
-                    'add_role_disk',
-                    'remove_role_disk']
-            ),  # perform node-wise change (e.g. configure role on disk, configure vpool,
+            node=dict(required=False, type='dict', default={}),
+                # perform node-wise change (e.g. configure role on disk, configure vpool,
                 # configure hypervisor_management_center)
-            reconfigure_cluster=dict(
-                required=False,
-                default='present',
-                choices=[
-                    'present',
-                    'enable_maintenance',
-                    'disable_maintenance']
-            ),  # perform cluster-wise change (e.g. put a online node in maintenance mode, demote a 'broken' offline
+            cluster=dict(required=False, type='dict', default={}),
+                # perform cluster-wise change (e.g. put a online node in maintenance mode, demote a 'broken' offline
                 # node, add-user, perform update/upgrade, configure heartbeat, configure remote_access_support,
                 # configure hypervisor_management_center, configure a ovs-user, configure a OAuth2-user, register ovs)
             ),
@@ -714,12 +704,14 @@ def main():
         mutually_exclusive=[
             ['deploy', 'flush'],
             ['deploy', 'health_check'],
-            ['deploy', 'reconfigure_node'],
-            ['deploy', 'reconfigure_cluster'],
+            ['deploy', 'node'],
+            ['deploy', 'cluster'],
         ],
         required_together=[
             ['state', 'ovs'],
             ['state', 'alba'],
+            ['state', 'node'],
+            ['state', 'cluster'],
         ],
     )
 
