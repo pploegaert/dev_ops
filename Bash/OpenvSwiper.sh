@@ -3,7 +3,7 @@
 #Title: Open vSwiper
 #Description: removes OpenvStorage & its dependencies 
 #Maintainer: Jonas Libbrecht
-#E-mail: jonas.libbrecht@openvstorage.com
+#Licensed under: AGPLv3
 #Warning: Use at own risk
 #Version: 3 (compatible with Chicago, Denver, Eugene, Eugene-updates & Unstable (Currently Fargo))
 

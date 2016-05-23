@@ -1,6 +1,7 @@
 # Title: Open vStorage HyperConverged Goes Ansible
 # Description: Installs Open vStorage on HyperConverged level
 # Maintainer: Jonas Libbrecht
+# Licensed under: AGPLv3
 # Compatibility list: Fargo
 # Version: 3.0
 

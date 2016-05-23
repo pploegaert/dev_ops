@@ -4,6 +4,7 @@
 Title: Open vAnsible
 Description: Ansible Module for Open vStorage
 Maintainer: Jonas Libbrecht
+Licensed under: AGPLv3
 Version: 3.0
 """
 

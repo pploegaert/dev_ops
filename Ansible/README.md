@@ -59,3 +59,6 @@ callback_whitelist = profile_tasks
 ##Compatibility
 * Open vStorage HyperScale / GeoScale (Enterprise Level Cloud)
 * Open vStorage HyperConverged (Small - Medium level Cloud)
+
+## License
+The Open vStorage HealthCheck is licensed under the [GNU AFFERO GENERAL PUBLIC LICENSE Version 3](https://www.gnu.org/licenses/agpl.html).

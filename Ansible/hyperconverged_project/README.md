@@ -109,3 +109,6 @@ real    11m37.835s
 user    0m55.560s
 sys     0m29.860s
 ```
+
+## License
+The Open vStorage HealthCheck is licensed under the [GNU AFFERO GENERAL PUBLIC LICENSE Version 3](https://www.gnu.org/licenses/agpl.html).

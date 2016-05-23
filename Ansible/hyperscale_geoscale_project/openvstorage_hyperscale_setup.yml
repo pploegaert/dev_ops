@@ -1,6 +1,7 @@
 # Title: Open vStorage HyperScale/GeoScale Goes Ansible
 # Description: Installs Open vStorage on hyperscale/geoscale level
 # Maintainer: Jonas Libbrecht
+# Licensed under: AGPLv3
 # Compatibility list: Fargo
 # Version: 3.0
 
