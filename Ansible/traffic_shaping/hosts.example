@@ -1,0 +1,50 @@
+# Copyright (C) 2016 iNuron NV
+#
+# This file is part of Open vStorage Open Source Edition (OSE),
+# as available from
+#
+#      http://www.openvstorage.org and
+#      http://www.openvstorage.com.
+#
+# This file is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Affero General Public License v3 (GNU AGPLv3)
+# as published by the Free Software Foundation, in version 3 as it comes
+# in the LICENSE.txt file of the Open vStorage OSE distribution.
+#
+# Open vStorage is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY of any kind.
+
+#cluster overview
+
+[controllers]
+ctl01 ansible_host=172.19.10.30 hypervisor_name=mas01 datacenter=dc1
+ctl02 ansible_host=172.19.10.31 hypervisor_name=mas02 datacenter=dc2
+ctl03 ansible_host=172.19.10.32 hypervisor_name=mas03 datacenter=dc1
+
+[computenodes]
+cmp01 ansible_host=172.19.10.40 hypervisor_name=hyp01 datacenter=dc1
+cmp02 ansible_host=172.19.10.41 hypervisor_name=hyp02 datacenter=dc2
+cmp03 ansible_host=172.19.10.42 hypervisor_name=hyp03 datacenter=dc1
+cmp04 ansible_host=172.19.10.43 hypervisor_name=hyp04 datacenter=dc2
+cmp05 ansible_host=172.19.10.44 hypervisor_name=hyp05 datacenter=dc1
+
+[storagenodes]
+str01 ansible_host=172.19.10.100 api_port=8500 excellerated_backend=false datacenter=dc1
+str02 ansible_host=172.19.10.101 api_port=8500 excellerated_backend=false datacenter=dc2
+str03 ansible_host=172.19.10.102 api_port=8500 excellerated_backend=false datacenter=dc1
+str04 ansible_host=172.19.10.103 api_port=8500 excellerated_backend=false datacenter=dc2
+str05 ansible_host=172.19.10.104 api_port=8500 excellerated_backend=false datacenter=dc1
+str06 ansible_host=172.19.10.105 api_port=8500 excellerated_backend=false datacenter=dc2
+str07 ansible_host=172.19.10.106 api_port=8500 excellerated_backend=false datacenter=dc1
+
+#cluster details
+
+[cluster:children]
+controllers
+computenodes
+storagenodes
+
+[cluster:vars]
+cluster_password=rooter
+cluster_type=KVM
+install_master_ip=172.19.10.30
