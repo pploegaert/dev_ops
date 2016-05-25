@@ -1,0 +1,37 @@
+# Copyright (C) 2016 iNuron NV
+#
+# This file is part of Open vStorage Open Source Edition (OSE),
+# as available from
+#
+#      http://www.openvstorage.org and
+#      http://www.openvstorage.com.
+#
+# This file is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Affero General Public License v3 (GNU AGPLv3)
+# as published by the Free Software Foundation, in version 3 as it comes
+# in the LICENSE.txt file of the Open vStorage OSE distribution.
+#
+# Open vStorage is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY of any kind.
+
+#cluster overview
+
+[controllers]
+ctl01 ansible_host=10.100.198.1 hypervisor_name=mas01 api_port=8500 excellerated_backend=false datacenter=dc1
+ctl02 ansible_host=10.100.198.2 hypervisor_name=mas02 api_port=8500 excellerated_backend=false datacenter=dc2
+ctl03 ansible_host=10.100.198.3 hypervisor_name=mas03 api_port=8500 excellerated_backend=false datacenter=dc1
+
+[computenodes]
+cmp01 ansible_host=10.100.198.4 hypervisor_name=hyp01 api_port=8500 excellerated_backend=false datacenter=dc1
+cmp02 ansible_host=10.100.198.5 hypervisor_name=hyp01 api_port=8500 excellerated_backend=false datacenter=dc2
+
+#cluster details
+
+[cluster:children]
+controllers
+computenodes
+
+[cluster:vars]
+cluster_password=rooter
+cluster_type=KVM
+install_master_ip=10.100.198.1
