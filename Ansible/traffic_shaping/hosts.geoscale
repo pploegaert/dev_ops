@@ -48,3 +48,4 @@ storagenodes
 cluster_password=rooter
 cluster_type=KVM
 install_master_ip=172.19.10.30
+latency=20

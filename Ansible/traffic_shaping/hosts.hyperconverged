@@ -35,3 +35,4 @@ computenodes
 cluster_password=rooter
 cluster_type=KVM
 install_master_ip=10.100.198.1
+latency=10
