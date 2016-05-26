@@ -36,6 +36,7 @@ try:
     from ovs.dal.hybrids.vdisk import VDisk
     from ovs.extensions.generic.system import System
     from ovs.extensions.generic.sshclient import SSHClient
+    from ovs.extensions.services.service import ServiceManager
     from ovs.dal.lists.storagerouterlist import StorageRouterList
     from ovs.extensions.db.etcd.configuration import EtcdConfiguration
     from etcd import EtcdConnectionFailed, EtcdException, EtcdKeyError, EtcdKeyNotFound
@@ -410,6 +411,7 @@ def create_alba_preconfig(module, node_information):
 
     return os.path.isfile('/opt/OpenvStorage/config/openvstorage_preconfig.json')
 
+
 def deploy_alba(module):
     """
     Start the ASD MANAGER setup on a future Open vStorage node (only for hyperscale/geoscale)
@@ -435,6 +437,15 @@ def deploy_alba(module):
             module.fail_json(msg="Alba can't be redeployed.")
     else:
         module.fail_json(msg="openvstorage-sdm packages seem to be absent on this node.")
+
+def restart_required_services():
+    """
+    Checks if the ASD MANAGER setup was executed correctly
+
+    :returns if all services successfully restarted
+    :rtype bool
+    """
+    ServiceManager.restart_service('avahi-daemon', root_client)
 
 
 def _asd_managers_post_deploy_check(log_output):
@@ -737,6 +748,7 @@ def main():
 
                 if state == 'setup':
                     is_pre_created = create_ovs_preconfig(module, deploy)
+                    restart_required_services()
 
                     # check if asdmanagers need to be preconfigured (for openvstorage-hc)
                     if asdmanager_present and is_pre_created:
