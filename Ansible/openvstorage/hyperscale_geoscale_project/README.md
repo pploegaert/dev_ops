@@ -34,7 +34,7 @@ sudo apt-get install ansible
 
 ```
 mkdir -p /usr/lib/ansible
-cp dev_ops/Ansible/openvstorage_module_project/openvstorage.py /usr/lib/ansible
+cp dev_ops/Ansible/openvstorage/openvstorage_module_project/openvstorage.py /usr/lib/ansible/
 ```
 
 * Configuring ansible libraries (`/etc/ansible/ansible.cfg`)
@@ -89,7 +89,7 @@ install_master_ip=10.100.198.1
 * Starting the installation
 
 ```
-cd dev_ops/Ansible/hyperscale_geoscale_project/
+cd dev_ops/Ansible/openvstorage/hyperscale_geoscale_project
  
 #Execute in debug mode
 ansible-playbook openvstorage_hyperscale_setup.yml -u root -k -vvvv
