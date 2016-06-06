@@ -17,4 +17,3 @@
 
   - name: execute script
     shell: bash /root/latency.sh
-~
