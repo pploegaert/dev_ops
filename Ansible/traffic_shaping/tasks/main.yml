@@ -1,0 +1,20 @@
+---
+
+- hosts: datacenters
+  gather_facts: false
+
+  tasks:
+  - name: execute task based on dc filter
+    template:
+      src=latency.sh.j2
+      dest=/root/latency.sh
+      owner=root
+      group=root
+      mode=744
+    when: "'dc' in '{{ item }}'"
+    with_items: "{{ hostvars[inventory_hostname].group_names }}"
+    register: mylist
+
+  - name: execute script
+    shell: bash /root/latency.sh
+~

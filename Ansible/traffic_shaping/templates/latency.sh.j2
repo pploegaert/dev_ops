@@ -1,0 +1,52 @@
+#!/bin/bash
+
+###
+#This script will set the latency from DC1 to DC2
+###
+
+{% set myhostlist = [] %}
+{% for host in groups['datacenters'] %}
+    {{ myhostlist.append(host) }}
+{% endfor %}
+
+{% set mydatacenterlist = [] %}
+{% for dc in groups['datacenters'] %}
+    {% for datacenter in hostvars[dc].group_names if 'dc' in datacenter %}
+        {{ mydatacenterlist.append(datacenter)}}
+    {% endfor %}
+{% endfor %}
+
+{% set mylatencylist = [] %}
+{% for latency in hostvars[inventory_hostname] if 'latency' in latency %}
+    {{ mylatencylist.append(latency) }}
+{% endfor %}
+
+tc qdisc del dev {{ interface }} root
+
+tc qdisc add dev {{ interface }} root handle 1: htb
+tc class add dev {{ interface }} parent 1: classid 1:1 htb rate 10gbit
+
+{% set classid = 11 %}
+{% set handleid = 11 %}
+{% for dc in mydatacenterlist | unique | sort if dc in hostvars[inventory_hostname].group_names %}
+{% for latency in mylatencylist | unique | sort %}
+tc class add dev {{ interface }} parent 1:1 classid 1:{{ classid }} htb rate 10gbit
+tc qdisc add dev {{ interface }} parent 1:{{ classid }} handle {{ handleid }}: netem delay {{ hostvars[inventory_hostname][latency] }}
+{% for datacenter in mydatacenterlist | unique | sort if datacenter in latency %}
+{% for host in myhostlist | unique | sort if datacenter in hostvars[host].group_names %}
+tc filter add dev {{ interface }} protocol ip u32 match ip dst {{ hostvars[host].ansible_host }} flowid 1:{{ classid }}
+{% endfor %}
+{% endfor %}
+{% set handleid = handleid + 1 %}
+{% set classid = classid + 1 %}
+
+
+{% endfor %}
+{% endfor %}
+
+exist=$(grep -ice "bash /root/latency.sh" /etc/rc.local)
+
+if [[ $exist -eq "0" ]]
+then
+    sudo sed -i '/\# By default this script does nothing./a bash /root/latency.sh' /etc/rc.local
+fi

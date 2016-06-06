@@ -17,13 +17,13 @@
 #cluster overview
 
 [controllers]
-ctl01 ansible_host=10.100.198.1 hypervisor_name=mas01 api_port=8500 excellerated_backend=false datacenter=dc1
-ctl02 ansible_host=10.100.198.2 hypervisor_name=mas02 api_port=8500 excellerated_backend=false datacenter=dc2
-ctl03 ansible_host=10.100.198.3 hypervisor_name=mas03 api_port=8500 excellerated_backend=false datacenter=dc1
+ctl01 ansible_host=10.100.198.1 hypervisor_name=mas01 api_port=8500 excellerated_backend=false interface=eth0
+ctl02 ansible_host=10.100.198.2 hypervisor_name=mas02 api_port=8500 excellerated_backend=false interface=eth0
+ctl03 ansible_host=10.100.198.3 hypervisor_name=mas03 api_port=8500 excellerated_backend=false interface=eth0
 
 [computenodes]
-cmp01 ansible_host=10.100.198.4 hypervisor_name=hyp01 api_port=8500 excellerated_backend=false datacenter=dc1
-cmp02 ansible_host=10.100.198.5 hypervisor_name=hyp01 api_port=8500 excellerated_backend=false datacenter=dc2
+cmp01 ansible_host=10.100.198.4 hypervisor_name=hyp01 api_port=8500 excellerated_backend=false interface=eth0
+cmp02 ansible_host=10.100.198.5 hypervisor_name=hyp01 api_port=8500 excellerated_backend=false interface=eth0
 
 #cluster details
 
@@ -35,4 +35,27 @@ computenodes
 cluster_password=rooter
 cluster_type=KVM
 install_master_ip=10.100.198.1
-latency=10
+
+#datacenter details
+
+[datacenters:children]
+dc1
+dc2
+
+[dc1]
+ctl01
+ctl03
+cmp01
+
+[dc1:vars]
+latencyTodc1=0ms
+latencyTodc2=2ms
+
+[dc2]
+ctl02
+cmp02
+
+[dc2:vars]
+latencyTodc1=2ms
+latencyTodc2=0ms
+

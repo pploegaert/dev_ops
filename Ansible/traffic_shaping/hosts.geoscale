@@ -17,25 +17,25 @@
 #cluster overview
 
 [controllers]
-ctl01 ansible_host=172.19.10.30 hypervisor_name=mas01 datacenter=dc1
-ctl02 ansible_host=172.19.10.31 hypervisor_name=mas02 datacenter=dc2
-ctl03 ansible_host=172.19.10.32 hypervisor_name=mas03 datacenter=dc1
+ctl01 ansible_host=172.19.10.30 hypervisor_name=mas01 interface=eth0
+ctl02 ansible_host=172.19.10.31 hypervisor_name=mas02 interface=eth0
+ctl03 ansible_host=172.19.10.32 hypervisor_name=mas03 interface=eth0
 
 [computenodes]
-cmp01 ansible_host=172.19.10.40 hypervisor_name=hyp01 datacenter=dc1
-cmp02 ansible_host=172.19.10.41 hypervisor_name=hyp02 datacenter=dc2
-cmp03 ansible_host=172.19.10.42 hypervisor_name=hyp03 datacenter=dc1
-cmp04 ansible_host=172.19.10.43 hypervisor_name=hyp04 datacenter=dc2
-cmp05 ansible_host=172.19.10.44 hypervisor_name=hyp05 datacenter=dc1
+cmp01 ansible_host=172.19.10.40 hypervisor_name=hyp01 interface=eth0
+cmp02 ansible_host=172.19.10.41 hypervisor_name=hyp02 interface=eth0
+cmp03 ansible_host=172.19.10.42 hypervisor_name=hyp03 interface=eth0
+cmp04 ansible_host=172.19.10.43 hypervisor_name=hyp04 interface=eth0
+cmp05 ansible_host=172.19.10.44 hypervisor_name=hyp05 interface=eth0
 
 [storagenodes]
-str01 ansible_host=172.19.10.100 api_port=8500 excellerated_backend=false datacenter=dc1
-str02 ansible_host=172.19.10.101 api_port=8500 excellerated_backend=false datacenter=dc2
-str03 ansible_host=172.19.10.102 api_port=8500 excellerated_backend=false datacenter=dc1
-str04 ansible_host=172.19.10.103 api_port=8500 excellerated_backend=false datacenter=dc2
-str05 ansible_host=172.19.10.104 api_port=8500 excellerated_backend=false datacenter=dc1
-str06 ansible_host=172.19.10.105 api_port=8500 excellerated_backend=false datacenter=dc2
-str07 ansible_host=172.19.10.106 api_port=8500 excellerated_backend=false datacenter=dc1
+str01 ansible_host=172.19.10.100 api_port=8500 excellerated_backend=false interface=eth0
+str02 ansible_host=172.19.10.101 api_port=8500 excellerated_backend=false interface=eth0
+str03 ansible_host=172.19.10.102 api_port=8500 excellerated_backend=false interface=eth0
+str04 ansible_host=172.19.10.103 api_port=8500 excellerated_backend=false interface=eth0
+str05 ansible_host=172.19.10.104 api_port=8500 excellerated_backend=false interface=eth0
+str06 ansible_host=172.19.10.105 api_port=8500 excellerated_backend=false interface=eth0
+str07 ansible_host=172.19.10.106 api_port=8500 excellerated_backend=false interface=eth0
 
 #cluster details
 
@@ -48,4 +48,36 @@ storagenodes
 cluster_password=rooter
 cluster_type=KVM
 install_master_ip=172.19.10.30
-latency=20
+
+#datacenter details
+
+[datacenters:children]
+dc1
+dc2
+
+[dc1]
+ctl01
+ctl03
+cmp01
+cmp03
+cmp05
+str01
+str03
+str05
+str07
+
+[dc1:vars]
+latencyTodc1=0ms
+latencyTodc2=2ms
+
+[dc2]
+ctl02
+cmp02
+cmp04
+str02
+str04
+str06
+
+[dc2:vars]
+latencyTodc1=2ms
+latencyTodc2=0ms
