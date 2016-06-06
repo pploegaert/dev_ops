@@ -93,7 +93,7 @@ cd dev_ops/Ansible/openvstorage/hyperscale_geoscale_project
  
 #Execute in debug mode
 ansible-playbook openvstorage_hyperscale_setup.yml -u root -k -vvvv
- 
+
 #Execute in normal mode
 ansible-playbook openvstorage_hyperscale_setup.yml -u root -k
 ```

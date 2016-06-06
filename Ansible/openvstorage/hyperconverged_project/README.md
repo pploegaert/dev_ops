@@ -43,9 +43,9 @@ cp dev_ops/Ansible/openvstorage/openvstorage_module_project/openvstorage.py /usr
  
 #inventory      = /etc/ansible/hosts
 #library        = /usr/share/my_modules/
- 
+
 ##to this
- 
+
 inventory      = /etc/ansible/hosts
 library        = /usr/lib/ansible
 ```
