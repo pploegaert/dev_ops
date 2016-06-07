@@ -166,3 +166,5 @@ ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
 EOF
 
+#remove etcd proxies from storage nodes
+rm /etc/init/sdm-etcd-config.conf
