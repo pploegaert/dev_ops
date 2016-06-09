@@ -33,13 +33,19 @@
   gather_facts: false
   tasks:
     - name: install controllers packages
-      apt: name=openvstorage-backend state=present force=yes update_cache=yes
+      apt: name={{ item }} state=present force=yes update_cache=yes
+      with_items:
+        - volumedriver-no-dedup-server
+        - openvstorage-backend
 
 - hosts: computenodes
   gather_facts: false
   tasks:
     - name: install compute packages
-      apt: name=openvstorage-backend state=present force=yes update_cache=yes
+      apt: name={{ item }} state=present force=yes update_cache=yes
+      with_items:
+        - volumedriver-no-dedup-server
+        - openvstorage-backend
 
 - hosts: storagenodes
   gather_facts: false
