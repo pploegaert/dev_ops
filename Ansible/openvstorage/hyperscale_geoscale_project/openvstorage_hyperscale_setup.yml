@@ -32,20 +32,20 @@
 - hosts: controllers
   gather_facts: false
   tasks:
+    - name: install volumedriver packages
+      apt: name=volumedriver-no-dedup-server state=present force=yes update_cache=yes
+
     - name: install controllers packages
-      apt: name={{ item }} state=present force=yes update_cache=yes
-      with_items:
-        - volumedriver-no-dedup-server
-        - openvstorage-backend
+      apt: name=openvstorage-backend state=present force=yes update_cache=yes
 
 - hosts: computenodes
   gather_facts: false
   tasks:
+    - name: install volumedriver packages
+      apt: name=volumedriver-no-dedup-server state=present force=yes update_cache=yes
+
     - name: install compute packages
-      apt: name={{ item }} state=present force=yes update_cache=yes
-      with_items:
-        - volumedriver-no-dedup-server
-        - openvstorage-backend
+      apt: name=openvstorage-backend state=present force=yes update_cache=yes
 
 - hosts: storagenodes
   gather_facts: false
