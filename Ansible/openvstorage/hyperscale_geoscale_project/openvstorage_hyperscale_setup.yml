@@ -53,11 +53,17 @@
     - name: install storage packages
       apt: name=openvstorage-sdm state=present force=yes update_cache=yes
 
+- hosts: storagenodes
+  gather_facts: false
+  tasks:
+    - name: install missing dependencies for storage nodes
+      apt: name=python-requests state=present force=yes update_cache=yes
+
 - hosts: controllers
   gather_facts: false
   serial: 1
   tasks:
-    - name: installing open vstorage controller node "{{ inventory_hostname }}"
+    - name: installing open vstorage controller nodes
       openvstorage:
             state: setup
             ovs:
@@ -72,7 +78,7 @@
   gather_facts: false
   serial: 1
   tasks:
-    - name: installing open vstorage compute node "{{ inventory_hostname }}"
+    - name: installing open vstorage compute nodes
       openvstorage:
             state: setup
             ovs:
@@ -115,7 +121,7 @@
   gather_facts: false
   serial: 1
   tasks:
-    - name: installing open vstorage storage node "{{ inventory_hostname }}"
+    - name: installing open vstorage storage nodes
       openvstorage:
             state: setup
             alba:
