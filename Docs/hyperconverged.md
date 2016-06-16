@@ -1,11 +1,11 @@
 # Hyper-converged
 
-{% include "controlmachine.md" %}
-
 ## Architecture
 * The Ansible script will deploy a cluster with 2 types of nodes: controllers and compute/storage nodes.
     * **Controllers:** Dedicated nodes to run the master services and hold the distributed DBs. Can be configured with vPools and run the VMs
     * **Compute/storage nodes:** These nodes run the extra services, are configured with vPools, run the VMs and store the actual data.
+
+{% include "controlmachine.md" %}
 
 ## Deploy the cluster
 
