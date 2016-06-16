@@ -2,6 +2,9 @@
 
 This repo contains handy tools to automatically setup, manage and troubleshoot Open vStorage clusters.
 
+## Documentation
+The DevOps specific documentation (Ansible scripts, bash, ...) can be found  [here](https://www.gitbook.com/book/openvstorage/devops/details). 
+
 ## Branch Info
 * The 'master' branch is marked as the main but unstable branch
 * The 'release' branches are the official releases of the dev_ops git
