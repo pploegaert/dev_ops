@@ -2,7 +2,8 @@
 
 * [Ansible](Docs/ansible.md)
     * [Hyper-converged](Docs/hyperconverged.md)
-    * [HyperScale / GeoScale](Docs/hyperscale.md)
+    * [HyperScale](Docs/hyperscale.md)
+    * [GeoScale](Docs/geoscale.md)
 * [Bash scripts](Docs/bash.md)
 
 
