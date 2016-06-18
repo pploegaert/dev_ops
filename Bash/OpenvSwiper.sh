@@ -7,13 +7,20 @@
 #Warning: Use at own risk
 #Version: 3 (compatible with Chicago, Denver, Eugene, Eugene-updates & Unstable (Currently Fargo))
 
+# umount any vpools under /mnt
+for v in $(ls /mnt | grep -v "ssd" | grep -v "hdd" | grep -v "alba" | grep -v "asd")
+do
+  fusermount -u /mnt/${v}
+  rm -rf /mnt/${v}
+done
+
 #remove keys/values from etcd so future setups don't have problems
 etcdctl rm /ovs -recursive
 
 set -f 
 
 #variables
-packages='openvstorage* rabbitmq-server* alba* volumedriver-base* volumedriver-server* gunicorn* memcached* python-memcache* nginx* arakoon* etcd python-etcd'
+packages='openvstorage* rabbitmq-server* alba* volumedriver-base* volumedriver-server* gunicorn* memcached* python-memcache* nginx* arakoon* etcd python-etcd volumedriver-no-dedup-server olumedriver-server'
 
 #removes OVS packages from dpkg
 apt-get purge -qq -y --allow-unauthenticated $packages
@@ -40,7 +47,6 @@ rm -rf /etc/avahi/services/*
 for f in $(ls /etc/init/ovs-*.conf /etc/init/alba-*.conf /etc/init/asd-*.conf)
 do
   rm ${f}
-  #mv ${f} ${f}-disabled
 done
 
 #remove remaining log files 
@@ -168,3 +174,6 @@ EOF
 
 #remove etcd proxies from storage nodes
 rm /etc/init/sdm-etcd-config.conf
+
+#delete all the directories under /mnt
+rm -rf /mnt/*
