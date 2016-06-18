@@ -11,7 +11,6 @@
 for v in $(ls /mnt | grep -v "ssd" | grep -v "hdd" | grep -v "alba" | grep -v "asd")
 do
   fusermount -u /mnt/${v}
-  rm -rf /mnt/${v}
 done
 
 #remove keys/values from etcd so future setups don't have problems
