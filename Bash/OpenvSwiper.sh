@@ -20,7 +20,7 @@ etcdctl rm /ovs -recursive
 set -f 
 
 #variables
-packages='openvstorage* rabbitmq-server* alba* volumedriver-base* volumedriver-server* gunicorn* memcached* python-memcache* nginx* arakoon* etcd python-etcd volumedriver-no-dedup-server olumedriver-server'
+packages='openvstorage* rabbitmq-server* alba* volumedriver-base* volumedriver-server* gunicorn* memcached* python-memcache* nginx* arakoon* etcd python-etcd volumedriver-no-dedup-server volumedriver-server'
 
 #removes OVS packages from dpkg
 apt-get purge -qq -y --allow-unauthenticated $packages
