@@ -176,3 +176,6 @@ rm /etc/init/sdm-etcd-config.conf
 
 #delete all the directories under /mnt
 rm -rf /mnt/*
+
+#remove pools from virsh
+for i in $(virsh pool-list --all | grep inactive | cut -d ' ' -f 2); do touch /etc/libvirt/storage/$i.xml; virsh pool-undefine $i; done
